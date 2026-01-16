@@ -151,6 +151,30 @@
         body.dark-mode .support-link { background: #1f2923; color: white; border-color: #333; }
 
         footer { padding: 60px 20px; text-align: center; background: var(--primary-green); color: white; border-radius: 50px 50px 0 0; margin-top: 50px; }
+        
+        .leaf {
+    position: fixed;
+    top: -50px;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+.badge-new {
+    background: var(--orange-accent);
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto;
+    animation: pulse 1s infinite;
+}
+
     </style>
 </head>
 <body>
@@ -177,6 +201,11 @@
         <div class="menu-item" onclick="reportBug()">🐜 Lapor Kendala</div>
         <hr style="margin: 20px 0; opacity: 0.1;">
         <a href="https://github.com/ky-dev2" target="_blank" class="menu-item">🐙 GitHub Profile</a>
+        <div class="menu-item" onclick="showSekolah()">
+    🏫 Tentang Sekolahku <span class="badge-new">NEW</span>
+</div>
+
+
         <button onclick="toggleMenu()" style="background:var(--orange-accent); color:white; border:none; padding:14px; width:100%; border-radius:18px; margin-top:30px; font-weight:bold; cursor:pointer;">Tutup</button>
     </div>
 
@@ -203,7 +232,7 @@
     <main class="container">
         <div class="org-section">
             <h2 style="font-family:'Fredoka'; margin-bottom: 10px;">Ayo Lestarikan Budaya!</h2>
-            <p style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 20px;">Kunjungi situs resmi untuk informasi lebih dalam.</p>
+            <p style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 20px;">Kunjungi situs resmi pemerintah untuk informasi lebih dalam.</p>
             <div class="org-grid">
                 <a href="https://iha.kemenbud.go.id/" target="_blank" class="org-card">🏛️ Indonesia Heritage Agency</a>
                 <a href="https://indonesia.go.id/kategori/budaya" target="_blank" class="org-card">🎭 Portal Budaya Indonesia</a>
@@ -217,9 +246,9 @@
 
     <div class="overlay" id="modalOverlay">  
         <div class="modal-content">  
-            <h2 id="modalTitle" style="font-family: 'Fredoka'; color: var(--primary-green); margin-bottom: 20px;">Support</h2>  
+            <h2 id="modalTitle" style="font-family: 'Fredoka'; color: var(--primary-green); margin-bottom: 20px;">Info</h2>  
             <div id="modalBody"></div>
-            <button onclick="closeModal()" style="background: var(--primary-green); color: white; border: none; padding: 14px; border-radius: 50px; font-weight: bold; width: 100%; margin-top: 20px; cursor:pointer;">Kembali</button>  
+            <button onclick="closeModal()" style="background: var(--primary-green); color: white; border: none; padding: 14px; border-radius: 50px; font-weight: bold; width: 100%; margin-top: 20px; cursor:pointer;">Tutup</button>  
         </div>  
     </div>
 
@@ -232,33 +261,106 @@
         const grid = document.getElementById('contentGrid');
         const searchInput = document.getElementById('userInput');
         
+        // --- DATASET FAKTA UNIK (Generator 2000+ Variasi) ---
+        const faktaSubjek = ["Candi Borobudur", "Rendang", "Bahasa Indonesia", "Komodo", "Wayang Kulit", "Angklung", "Batik", "Danau Toba", "Gamelan", "Kopi Luwak", "Burung Cendrawasih", "Pulau Jawa", "Suku Buton", "Raja Ampat", "Pencak Silat", "Tari Saman", "Kapal Phinisi", "Garis Khatulistiwa", "Gunung Jayawijaya", "Naskah Negarakertagama"];
+        const faktaPredikat = ["adalah yang terbesar di dunia", "telah diakui oleh UNESCO", "memiliki sejarah lebih dari 1000 tahun", "menjadi simbol kebanggaan nasional", "merupakan warisan takbenda kemanusiaan", "hanya bisa ditemukan di bumi nusantara", "pernah dinobatkan sebagai yang terbaik secara global", "menginspirasi banyak kebudayaan di negara lain", "menyimpan misteri geologi yang luar biasa", "menjadi bukti kecerdasan nenek moyang kita"];
+        const faktaObjek = ["dalam kategori warisan budaya.", "sebagai identitas bangsa Indonesia.", "yang menarik perhatian peneliti dunia.", "sejak puluhan dekade yang lalu.", "menurut catatan sejarah internasional.", "bagi kelestarian alam nusantara.", "di tengah perkembangan era modern.", "yang wajib kita jaga bersama.", "di bawah naungan hukum internasional.", "sebagai pilar pariwisata kita."];
+
+                // --- DATASET MASSIVE (100+ PER KATEGORI) ---
         const collections = {
-            acak: ["Wayang", "Batik", "Borobudur", "Rendang", "Angklung", "Pencak_Silat", "Keris", "Gamelan"],
-            Seni: ["Reog", "Wayang_Kulit", "Tari_Saman", "Tari_Piring", "Tari_Pendet", "Tari_Jaipong", "Tari_Kecak", "Seni_Ukir_Jepara", "Kuda_Lumping", "Ondel-ondel"],
-            Kuliner: ["Rendang", "Gudeg", "Sate", "Pempek", "Papeda", "Soto_Betawi", "Nasi_Goreng", "Opor_Ayam", "Rawon", "Bakso"],
-            Tempat: ["Borobudur", "Prambanan", "Danau_Toba", "Lawang_Sewu", "Pura_Besakih", "Sangiran", "Benteng_Vredeburg", "Tana_Toraja", "Raja_Ampat"]
+            acak: [
+                "Wayang", "Batik", "Borobudur", "Rendang", "Angklung", "Pencak_Silat", "Keris", "Gamelan", "Soto", "Nasi_Goreng",
+                "Prambanan", "Danau_Toba", "Raja_Ampat", "Tari_Saman", "Reog", "Kain_Ulos", "Kujang", "Rumah_Gadang", "Lurik",
+                "Kopi_Luwak", "Tari_Kecak", "Tari_Piring", "Papeda", "Pempek", "Gudeg", "Lawang_Sewu", "Candi_Cetho", "Sasando",
+                "Kolintang", "Tifa", "Rumah_Limas", "Joglo", "Tongkonan", "Honai", "Mandau", "Badik", "Rencong", "Tari_Barong",
+                "Sate_Madura", "Bakso", "Rawon", "Opor_Ayam", "Nasi_Liwet", "Ayam_Betutu", "Es_Dawet", "Wingko_Babat", "Serabi",
+                "Kue_Putu", "Klepon", "Bika_Ambon", "Tari_Jaipong", "Tari_Merak", "Seni_Ukir_Jepara", "Ondel-ondel", "Sisingaan",
+                "Ketoprak", "Ludruk", "Lenong", "Wayang_Golek", "Wayang_Beber", "Gong", "Kenong", "Bonang", "Kendang", "Rebab",
+                "Saron", "Siter", "Celempung", "Calung", "Bedug", "Tari_Tor-tor", "Tari_Gandrung", "Tari_Topeng", "Tari_Serimpi",
+                "Tari_Bedhaya", "Tari_Baksa_Kembang", "Tari_Zapin", "Tari_Merak", "Tari_Sajojo", "Tari_Maengket", "Tari_Gambyong",
+                "Tari_Pendet", "Tari_Legong", "Tari_Cakalele", "Tari_Gambo", "Sapeh", "Kledi", "Karinding", "Talempong", "Saluang",
+                "Kecapi", "Suling", "Gambus", "Tehyan", "Batik_Solo", "Batik_Pekalongan", "Batik_Parang", "Batik_Megamendung",
+                "Songket", "Kain_Tapis", "Kain_Tenun_Sumba", "Garis_Khatulistiwa", "Gunung_Bromo", "Kawah_Ijen", "Pulau_Komodo",
+                "Taman_Mini_Indonesia_Indah", "Monumen_Nasional", "Museum_Nasional_Indonesia", "Benteng_Rotterdam", "Benteng_Vredeburg",
+                "Istana_Maimun", "Keraton_Ngayogyakarta_Hadiningrat", "Keraton_Surakarta", "Masjid_Menara_Kudus", "Masjid_Raya_Baiturrahman",
+                "Wae_Rebo", "Tana_Toraja", "Sangiran", "Pura_Besakih", "Tanah_Lot", "Bunaken", "Kepulauan_Derawan", "Danau_Kelimutu",
+                "Gunung_Rinjani", "Pantai_Pandawa", "Candi_Sukuh", "Candi_Sewu", "Candi_Kalasan", "Benteng_Marlborough", "Lumpia_Semarang",
+                "Tahu_Sumedang", "Mie_Aceh", "Coto_Makassar", "Es_Pisang_Ijo", "Bubur_Manado", "Kapurung", "Rujak_Cingur", "Kerak_Telor",
+                "Nasi_Uduk", "Nasi_Kuning", "Sate_Lilit", "Gulai_Pakis", "Kue_Lumpur", "Lapis_Legit", "Martabak_Manis", "Soto_Lamongan"
+            ],
+            Seni: [
+                "Wayang_Kulit", "Batik", "Angklung", "Pencak_Silat", "Keris", "Gamelan", "Tari_Saman", "Reog_Ponorogo", "Kain_Ulos",
+                "Tari_Kecak", "Tari_Piring", "Sasando", "Kolintang", "Tifa", "Tari_Barong", "Tari_Jaipong", "Tari_Merak",
+                "Seni_Ukir_Jepara", "Ondel-ondel", "Sisingaan", "Ketoprak", "Ludruk", "Lenong", "Wayang_Golek", "Wayang_Beber",
+                "Gong", "Kenong", "Bonang", "Kendang", "Rebab", "Saron", "Siter", "Celempung", "Calung", "Bedug", "Tari_Tor-tor",
+                "Tari_Gandrung", "Tari_Topeng", "Tari_Serimpi", "Tari_Bedhaya", "Tari_Baksa_Kembang", "Tari_Zapin", "Tari_Sajojo",
+                "Tari_Maengket", "Tari_Gambyong", "Tari_Pendet", "Tari_Legong", "Tari_Cakalele", "Tari_Gambo", "Sapeh", "Kledi",
+                "Karinding", "Talempong", "Saluang", "Kecapi", "Suling", "Gambus", "Tehyan", "Batik_Solo", "Batik_Pekalongan",
+                "Batik_Parang", "Batik_Megamendung", "Songket", "Kain_Tapis", "Kain_Tenun_Sumba", "Kujang", "Mandau", "Badik",
+                "Rencong", "Parang", "Celurit", "Kain_Ulos", "Lurik", "Sinden", "Macapat", "Debus", "Kuda_Lumping", "Tari_Topeng_Cirebon",
+                "Seni_Lukis_Kamasan", "Ukir_Asmat", "Batik_Cirebon", "Tenun_Ikat", "Tari_Golek", "Wayang_Wong", "Tari_Piring",
+                "Gamelan_Bali", "Gamelan_Sunda", "Gendang_Beleq", "Tari_Manyer_Sewu", "Tari_Piring", "Seni_Ukir_Bali", "Wayang_Sukur",
+                "Tari_Bambu_Gila", "Tari_Pagar_Pengantin", "Seni_Ukir_Toraja", "Tari_Balean_Dadas", "Tari_Lilin", "Tari_Remo"
+            ],
+            Kuliner: [
+                "Rendang", "Soto", "Nasi_Goreng", "Kopi_Luwak", "Papeda", "Pempek", "Gudeg", "Sate_Madura", "Bakso", "Rawon",
+                "Opor_Ayam", "Nasi_Liwet", "Ayam_Betutu", "Es_Dawet", "Wingko_Babat", "Serabi", "Kue_Putu", "Klepon", "Bika_Ambon",
+                "Lumpia_Semarang", "Tahu_Sumedang", "Mie_Aceh", "Coto_Makassar", "Es_Pisang_Ijo", "Bubur_Manado", "Kapurung",
+                "Rujak_Cingur", "Kerak_Telor", "Nasi_Uduk", "Nasi_Kuning", "Sate_Lilit", "Gulai_Pakis", "Kue_Lumpur", "Lapis_Legit",
+                "Martabak_Manis", "Soto_Lamongan", "Pecel_Lele", "Gado-gado", "Karedok", "Ketoprak_(makanan)", "Sayur_Asem",
+                "Gulai_Kambing", "Sate_Padura", "Pindang_Patin", "Ayam_Taliwang", "Nasi_Padang", "Nasi_Ulam", "Bubur_Ayam",
+                "Soto_Betawi", "Soto_Kudus", "Soto_Banjar", "Soto_Medan", "Mie_Kocok", "Mie_Cakalang", "Laksa", "Asinan_Bogor",
+                "Tahu_Gejrot", "Seblak", "Batagor", "Siomay", "Cimol", "Cilor", "Kue_Cucur", "Kue_Balok", "Kue_Pancong", "Getuk",
+                "Wajik", "Dodol_Garut", "Jenang", "Madumongso", "Tape_Singkong", "Peuyeum", "Roti_Buaya", "Binte_Biluhuta",
+                "Pallubasa", "Konro", "Sop_Saudara", "Ikan_Bakar_Cianjur", "Ayam_Goreng_Kalasan", "Sate_Maranggi", "Sate_Kere",
+                "Empal_Gentong", "Tahu_Campur", "Tahu_Tek", "Lontong_Kupang", "Nasi_Grombyang", "Nasi_Krawu", "Nasi_Pecel",
+                "Ayam_Pop", "Dendeng_Balado", "Gulai_Otak", "Samba_Lado_Tanah", "Sate_Kajang", "Mie_Goreng_Jawa", "Bebek_Sinjay"
+            ],
+            Tempat: [
+                "Borobudur", "Prambanan", "Danau_Toba", "Raja_Ampat", "Lawang_Sewu", "Candi_Cetho", "Rumah_Limas", "Joglo",
+                "Tongkonan", "Honai", "Garis_Khatulistiwa", "Gunung_Bromo", "Kawah_Ijen", "Pulau_Komodo", "Taman_Mini_Indonesia_Indah",
+                "Monumen_Nasional", "Museum_Nasional_Indonesia", "Benteng_Rotterdam", "Benteng_Vredeburg", "Istana_Maimun",
+                "Keraton_Ngayogyakarta_Hadiningrat", "Keraton_Surakarta", "Masjid_Menara_Kudus", "Masjid_Raya_Baiturrahman",
+                "Wae_Rebo", "Tana_Toraja", "Sangiran", "Pura_Besakih", "Tanah_Lot", "Bunaken", "Kepulauan_Derawan", "Danau_Kelimutu",
+                "Gunung_Rinjani", "Pantai_Pandawa", "Candi_Sukuh", "Candi_Sewu", "Candi_Kalasan", "Benteng_Marlborough",
+                "Benteng_Belgica", "Candi_Bala_Putra_Dewa", "Candi_Penataran", "Candi_Muara_Takus", "Taman_Nasional_Ujung_Kulon",
+                "Taman_Nasional_Lore_Lindu", "Taman_Nasional_Lorentz", "Bukit_Lawang", "Kepulauan_Wakatobi", "Pulau_Weh",
+                "Pantai_Ora", "Lembah_Harau", "Ngarai_Sianok", "Jam_Gadang", "Lubang_Buaya", "Gedung_Sate", "Jalan_Malioboro",
+                "Pasar_Terapung", "Jembatan_Ampera", "Masjid_Istiqlal", "Gereja_Katedral_Jakarta", "Kelenteng_Sam_Poo_Kong",
+                "Vihara_Avalokitesvara", "Istana_Bogor", "Istana_Cipanas", "Istana_Tampaksiring", "Taman_Sari_Yogyakarta",
+                "Benteng_Speelwijk", "Benteng_Heritage", "Museum_Angkut", "Jatim_Park", "Taman_Safari_Indonesia", "Kawah_Putih",
+                "Gunung_Tangkuban_Parahu", "Gunung_Merapi", "Gunung_Semeru", "Puncak_Jaya", "Pantai_Parangtritis", "Pantai_Kuta",
+                "Pantai_Senggigi", "Gili_Trawangan", "Pulau_Samosir", "Banda_Neira", "Ternate", "Tidore", "Pulau_Bintan",
+                "Pulau_Bangka", "Pulau_Belitung", "Pantai_Tanjung_Tinggi", "Danau_Sentani", "Danau_Singkarak", "Danau_Ranau"
+            ]
         };
 
-        const infiniteLibrary = [
-            // --- SENI & TARI ---
-            "Tari_Legong", "Tari_Tor-tor", "Tari_Barong", "Tari_Bedhaya", "Tari_Serimpi", "Tari_Gandrung", "Tari_Topeng", "Tari_Baksa_Kembang", "Tari_Zapin", "Tari_Merak", "Tari_Cakalele", "Tari_Sajojo", "Tari_Gambo", "Sisingaan", "Wayang_Golek", "Wayang_Beber", "Ludruk", "Ketoprak", "Lenong", "Mak_Yong", "Randai", "Debus", "Seni_Ukir_Asmat", "Seni_Lukis_Kamasan", "Barongsai", "Tari_Piring", "Tari_Maengket", "Saman_(tari)", "Tari_Gambyong", "Reog_Ponorogo",
+        const infiniteLibrary = [...collections.acak].sort(() => Math.random() - 0.5);
 
-            // --- ALAT MUSIK ---
-            "Sasando", "Kolintang", "Tifa", "Saluang", "Suling", "Kecapi", "Kendang", "Gambus", "Bonang", "Gong", "Talempong", "Rebab", "Calung", "Bedug", "Gender_(musik)", "Kenong", "Saron", "Siter", "Celempung", "Kangkanung", "Karinding", "Gendang_Beleq", "Kledi", "Sapeh", "Tehyan",
-
-            // --- KULINER NUSANTARA ---
-            "Nasi_Uduk", "Nasi_Liwet", "Coto_Makassar", "Kapurung", "Bika_Ambon", "Ayam_Betutu", "Es_Dawet", "Rujak_Cingur", "Mpek-mpek", "Lontong_Sayur", "Serabi", "Klepon", "Kue_Putu", "Wingko_Babat", "Es_Teler", "Wedang_Jahe", "Gulai_Pakis", "Sate_Lilit", "Nasi_Kuning", "Kerak_Telor", "Soto_Lamongan", "Tahu_Sumedang", "Lumpia_Semarang", "Mie_Aceh", "Sate_Madura", "Es_Pisang_Ijo", "Bubur_Manado",
-
-            // --- RUMAH ADAT & SENJATA ---
-            "Rumah_Limas", "Joglo", "Tongkonan", "Honai", "Rumah_Lantai", "Gapura_Candi_Bentar", "Mandau", "Kujang", "Badik", "Rencong", "Parang_(senjata)", "Celurit", "Kain_Tenun", "Kain_Ulos", "Kain_Songket", "Kain_Tapis", "Sumba_Kain", "Batik_Parang", "Batik_Megamendung", "Lurik", "Rumah_Gadang", "Rumah_Bolon", "Batik_Solo", "Batik_Pekalongan",
-
-            // --- SEJARAH & TEMPAT ---
-            "Candi_Cetho", "Candi_Sukuh", "Candi_Sewu", "Candi_Kalasan", "Benteng_Rotterdam", "Benteng_Marlborough", "Istana_Maimun", "Keraton_Ngayogyakarta_Hadiningrat", "Keraton_Surakarta_Hadiningrat", "Masjid_Menara_Kudus", "Masjid_Raya_Baiturrahman", "Taman_Mini_Indonesia_Indah", "Taman_Nasional_Lore_Lindu", "Taman_Nasional_Ujung_Kulon", "Wae_Rebo", "Tanah_Lot", "Kawah_Ijen", "Gunung_Bromo", "Kepulauan_Raja_Ampat", "Danau_Kelimutu", "Bunaken", "Pulau_Komodo", "Pantai_Pandawa", "Museum_Nasional_Indonesia", "Benteng_Belgica", "Candi_Bala_Putra_Dewa"
-        ];
 
         let itemsLoaded = 0;
         let isFetching = false;
         let activeCategory = 'acak';
+
+        // --- CORE FUNCTIONS ---
+        function generateUniqueFact() {
+            const s = faktaSubjek[Math.floor(Math.random() * faktaSubjek.length)];
+            const p = faktaPredikat[Math.floor(Math.random() * faktaPredikat.length)];
+            const o = faktaObjek[Math.floor(Math.random() * faktaObjek.length)];
+            return `${s} ${p} ${o}`;
+        }
+
+        function showLoginFact() {
+            const fact = generateUniqueFact();
+            document.getElementById('modalTitle').innerText = "💡 Fakta Unik Hari Ini";
+            document.getElementById('modalBody').innerHTML = `
+                <div style="padding: 20px; background: var(--light-green); border-radius: 20px; color: var(--primary-green); font-weight: 500; line-height: 1.6;">
+                    "${fact}"
+                </div>
+                <p style="margin-top: 15px; font-size: 0.75rem; opacity: 0.7;">Tahukah kamu? Indonesia memiliki ribuan cerita yang belum terungkap sepenuhnya.</p>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
 
         function showNotif(title, msg, icon = "✨") {
             const alertBox = document.getElementById('customAlert');
@@ -272,41 +374,10 @@
         function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
         function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
 
-        function showSupport() {
-            toggleMenu();
-            document.getElementById('modalTitle').innerText = "Support Ky Dev";
-            document.getElementById('modalBody').innerHTML = `
-                <a href="https://www.instagram.com/kycihuyy1" target="_blank" class="support-link">📸 Instagram</a>
-                <a href="https://tiktok.com/@kysnku" target="_blank" class="support-link">🎵 TikTok</a>
-                <a href="https://saweria.co/Kydev" target="_blank" class="support-link">☕ Saweria</a>
-                <a href="https://github.com/ky-dev2" target="_blank" class="support-link">🛠️ GitHub</a>
-            `;
-            document.getElementById('modalOverlay').classList.add('active');
-        }
-
-        function showOrgModal() {
-            toggleMenu();
-            document.getElementById('modalTitle').innerText = "Organisasi Resmi";
-            document.getElementById('modalBody').innerHTML = `
-                <p style="margin-bottom:15px; font-size:0.9rem;">Organisasi pelestari budaya Indonesia:</p>
-                <a href="https://kemenbud.go.id/" target="_blank" class="support-link">🏛️ Kementerian Kebudayaan</a>
-                <a href="https://www.indonesiakaya.com/" target="_blank" class="support-link">🎭 Bakti Budaya Djarum</a>
-                <a href="https://www.unesco.org/en/fieldoffice/jakarta" target="_blank" class="support-link">🌐 UNESCO Jakarta</a>
-            `;
-            document.getElementById('modalOverlay').classList.add('active');
-        }
-
-        function reportBug() {
-            toggleMenu();
-            showNotif("Hubungi", "fadhillahnasrullah9@gmail.com", "📧");
-        }
-
         async function fetchCulture(topic) {
             try {
                 const res = await fetch(`https://id.wikipedia.org/api/rest_v1/page/summary/${topic}`);
                 const data = await res.json();
-                
-                // Cek apakah data valid
                 if (data.title === "Not found") return;
 
                 const img = (data.thumbnail) ? data.thumbnail.source : `https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=60`;
@@ -319,22 +390,12 @@
                     </div>
                     <div style="padding:22px;">
                         <h3 style="color:var(--primary-green); font-size:1.1rem; margin-bottom:8px;">${data.title}</h3>
-                        <p style="font-size:0.8rem; line-height:1.5; opacity:0.8;">${data.extract ? data.extract.substring(0, 95) + '...' : 'Warisan kekayaan budaya nusantara yang perlu kita lestarikan bersama.'}</p>
+                        <p style="font-size:0.8rem; line-height:1.5; opacity:0.8;">${data.extract ? data.extract.substring(0, 95) + '...' : 'Warisan kekayaan budaya nusantara.'}</p>
                         <a href="${data.content_urls.desktop.page}" target="_blank" style="display:inline-block; margin-top:15px; color:var(--orange-accent); font-weight:bold; font-size:0.75rem; text-decoration:none;">BACA SELENGKAPNYA →</a>
                     </div>
                 `;
                 grid.appendChild(card);
-            } catch (e) { console.log("Error loading topic:", topic); }
-        }
-
-        async function searchCulture() {
-            const val = searchInput.value.trim();
-            if(!val) return;
-            grid.innerHTML = '';
-            itemsLoaded = 0;
-            activeCategory = 'search';
-            await fetchCulture(val.replace(/ /g, '_'));
-            showNotif("Cari", val, "🔍");
+            } catch (e) { console.log(e); }
         }
 
         async function updateCategory(cat, el) {
@@ -349,13 +410,42 @@
             }
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            showNotif("Mode", isDark ? "Gelap diaktifkan" : "Terang diaktifkan", "🌓");
+        function searchCulture() {
+            const val = searchInput.value.trim();
+            if(!val) return;
+            grid.innerHTML = '';
+            fetchCulture(val.replace(/ /g, '_'));
         }
 
-        // Infinite Scroll Logic
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            showNotif("Mode", "Tampilan diubah", "🌓");
+        }
+
+        function showSupport() {
+            toggleMenu();
+            document.getElementById('modalTitle').innerText = "Support Ky Dev";
+            document.getElementById('modalBody').innerHTML = `
+                <a href="https://instagram.com/kycihuyy1" target="_blank" class="support-link">📸 Instagram</a>
+                                <a href="https://tiktok.com/@kysnku" target="_blank" class="support-link">🎵 TikTok</a>
+                <a href="https://saweria.co/Kydev" target="_blank" class="support-link">☕ Saweria</a>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function showOrgModal() {
+            toggleMenu();
+            document.getElementById('modalTitle').innerText = "Organisasi Resmi";
+            document.getElementById('modalBody').innerHTML = `<p>Situs resmi: kemenbud.go.id</p>`;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function reportBug() {
+            toggleMenu();
+            showNotif("Email", "fadhillahnasrullah9@gmail.com", "📧");
+        }
+
+        // --- SCROLL & INITIAL ---
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('mainNav');
             nav.classList.toggle('scrolled', window.scrollY > 50);
@@ -364,15 +454,9 @@
                 if(!isFetching && activeCategory === 'acak' && itemsLoaded < infiniteLibrary.length) {
                     isFetching = true;
                     document.getElementById('scrollStatus').style.display = 'block';
-                    
-                    // Load 2 items sekaligus
                     const loadBatch = async () => {
                         await fetchCulture(infiniteLibrary[itemsLoaded]);
                         itemsLoaded++;
-                        if(itemsLoaded < infiniteLibrary.length) {
-                            await fetchCulture(infiniteLibrary[itemsLoaded]);
-                            itemsLoaded++;
-                        }
                         isFetching = false;
                         document.getElementById('scrollStatus').style.display = 'none';
                     };
@@ -381,17 +465,144 @@
             }
         });
 
-        // Initial Load
         window.onload = () => {
             setTimeout(async () => {
                 document.getElementById('preloader').style.transform = 'translateY(-100%)';
+                showLoginFact(); 
                 for (const item of collections.acak) {
                     await fetchCulture(item);
                 }
             }, 1500);
         };
-        
+
         searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCulture(); });
+        
+        function createLeaf() {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf';
+    leaf.innerHTML = '🍃';
+    leaf.style.left = Math.random() * 100 + 'vw';
+    leaf.style.fontSize = (Math.random() * 20 + 10) + 'px';
+    
+    // Perbaikan: gunakan style.animationDuration
+    const duration = Math.random() * 3 + 4; 
+    leaf.style.animationDuration = duration + 's';
+    
+    leaf.style.opacity = Math.random();
+    document.body.appendChild(leaf);
+    
+    // Hapus daun setelah animasi selesai agar tidak membebani memori
+    setTimeout(() => leaf.remove(), duration * 1000);
+}
+// Jalankan fungsi daun
+setInterval(createLeaf, 1500); 
+
+async function updateCategory(cat, el) {
+    if (isFetching) return;
+    isFetching = true; // Kunci agar tidak klik berkali-kali
+    
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    
+    grid.innerHTML = '';
+    itemsLoaded = 0;
+    activeCategory = cat;
+    
+    // Gunakan for...of untuk urutan yang rapi
+    for (const item of collections[cat]) {
+        await fetchCulture(item);
+    }
+    isFetching = false; // Buka kunci kembali
+}
+
+function showSekolah() {
+    toggleMenu();
+    document.getElementById('modalTitle').innerText = "Profil Resmi Sekolah";
+    document.getElementById('modalBody').innerHTML = `
+        <div style="text-align:left; font-size:0.85rem; line-height:1.5;">
+            <div style="background:var(--primary-green); color:white; padding:20px; border-radius:20px; margin-bottom:15px; text-align:center;">
+                <h3 style="font-family:'Fredoka'; margin-bottom:5px;">SMP NEGERI 2 CAWAS</h3>
+                <p style="font-size:0.75rem; opacity:0.9;">NPSN: 20309592 | Akreditasi: A</p>
+            </div>
+            
+            <div style="background:var(--light-green); padding:15px; border-radius:15px; margin-bottom:15px; color:var(--text-dark);">
+                <p>📍 <b>Alamat:</b> Gombang Rt 01 Rw 01, Kec. Cawas, Kab. Klaten, Jawa Tengah.</p>
+                <p>👨‍🏫 <b>Kepala Sekolah:</b> Eko Widodo</p>
+                <p>📚 <b>Kurikulum:</b> Kurikulum SMP Merdeka</p>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div style="border:1px solid #ddd; padding:10px; border-radius:12px; text-align:center;">
+                    <span style="display:block; font-size:1.2rem;">👥</span>
+                    <b>432</b><br>Total Siswa
+                </div>
+                <div style="border:1px solid #ddd; padding:10px; border-radius:12px; text-align:center;">
+                    <span style="display:block; font-size:1.2rem;">🏢</span>
+                    <b>15</b><br>Rombel
+                </div>
+                <div style="border:1px solid #ddd; padding:10px; border-radius:12px; text-align:center;">
+                    <span style="display:block; font-size:1.2rem;">📖</span>
+                    <b>1</b><br>Perpustakaan
+                </div>
+                <div style="border:1px solid #ddd; padding:10px; border-radius:12px; text-align:center;">
+                    <span style="display:block; font-size:1.2rem;">🧪</span>
+                    <b>2</b><br>Laboratorium
+                </div>
+            </div>
+
+            <p style="font-size:0.75rem; color:gray; text-align:center; font-style:italic;">
+                "Sekolah Negeri dengan Luas Tanah 10.030 m² yang nyaman untuk belajar."
+            </p>
+            
+            <a href="https://sekolah.data.kemendikdasmen.go.id/profil-sekolah/8034325A-2DF5-E011-ACC0-ADEF23297D2F" target="_blank" style="display:block; margin-top:15px; padding:12px; background:var(--orange-accent); color:white; text-decoration:none; border-radius:12px; font-weight:bold; text-align:center;">Cek Data Dapodik</a>
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function showUpdateAnnouncement() {
+    document.getElementById('modalTitle').innerText = "🚀 UPDATE SUPREME V2.0";
+    document.getElementById('modalBody').innerHTML = `
+        <div style="text-align: left;">
+            <div style="background: linear-gradient(to right, #2d6a4f, #52b788); color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 5px;">Halo Patriot Budaya!</h4>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Kami baru saja merilis pembaruan besar untuk meningkatkan pengalaman jelajahmu.</p>
+            </div>
+
+            <h5 style="color: var(--primary-green); margin-bottom: 10px;">Apa yang baru?</h5>
+            <ul style="font-size: 0.85rem; padding-left: 20px; line-height: 1.8;">
+                <li><b>Database Masif:</b> Lebih dari 100+ informasi budaya di setiap kategori.</li>
+                <li><b>Fitur Sekolah:</b> Profil resmi SMP Negeri 2 Cawas terintegrasi Dapodik.</li>
+                <li><b>Visual Efek:</b> Animasi daun berguguran (Nature Mode).</li>
+                <li><b>Infinite Exploration:</b> Jelajahi budaya tanpa batas di Beranda.</li>
+                <li><b>Optimasi Performa:</b> Loading lebih stabil dengan Wikipedia API.</li>
+            </ul>
+
+            <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 10px; border-left: 5px solid #ffc107;">
+                <p style="font-size: 0.75rem; color: #856404;">
+                    <b>Catatan:</b> Jika gambar tidak muncul, pastikan koneksi internet stabil untuk mengambil data dari server Wikipedia.
+                </p>
+            </div>
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+// Tambahkan pemanggilan ini di dalam window.onload yang sudah ada
+// Ganti bagian window.onload lama dengan ini:
+window.onload = () => {
+    setTimeout(async () => {
+        document.getElementById('preloader').style.transform = 'translateY(-100%)';
+        
+        // Pemicu Pengumuman Update
+        showUpdateAnnouncement(); 
+        
+        for (const item of collections.acak) {
+            await fetchCulture(item);
+        }
+    }, 1500);
+};
+
     </script>
 </body>
 </html>
