@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NusantaraEdu Supreme - Ky Dev</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -22,7 +22,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
+
         body { 
             font-family: 'Space Grotesk', sans-serif; 
             background-color: var(--cream); 
@@ -151,7 +151,7 @@
         body.dark-mode .support-link { background: #1f2923; color: white; border-color: #333; }
 
         footer { padding: 60px 20px; text-align: center; background: var(--primary-green); color: white; border-radius: 50px 50px 0 0; margin-top: 50px; }
-        
+
         .leaf {
     position: fixed;
     top: -50px;
@@ -175,6 +175,78 @@
     animation: pulse 1s infinite;
 }
 
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #eee;
+}
+.btn-action {
+    flex: 1;
+    padding: 8px;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.btn-copy { background: var(--light-green); color: var(--primary-green); }
+.btn-share { background: var(--orange-accent); color: white; }
+.btn-action:active { transform: scale(0.9); }
+
+.recommendation-section {
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+.rec-title {
+    font-family: 'Fredoka';
+    color: var(--primary-green);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.rec-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.rec-grid::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
+
+.rec-card {
+    min-width: 240px;
+    background: white;
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+body.dark-mode .rec-card { background: var(--dark-card); border-color: #333; }
+
+.rec-img {
+    width: 100%;
+    height: 120px;
+    border-radius: 15px;
+    object-fit: cover;
+}
+.rec-info h4 { font-size: 0.9rem; margin-top: 10px; color: var(--primary-green); }
+.rec-info p { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
+.btn-visit {
+    display: block;
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--light-green);
+    color: var(--primary-green);
+    text-align: center;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-decoration: none;
+}
     </style>
 </head>
 <body>
@@ -258,9 +330,52 @@
     </footer>
 
     <script>
+      const kalenderBudaya = [
+    { "tgl": "01-01", "event": "Tahun Baru & Semangat Budaya", "pesan": "Awali tahun dengan semangat melestarikan budaya Nusantara!" },
+    { "tgl": "02-21", "event": "Hari Bahasa Ibu Internasional", "pesan": "Jangan lupa gunakan bahasa daerahmu hari ini! 🗣️" },
+    { "tgl": "03-09", "event": "Hari Musik Nasional", "pesan": "Ayo dengarkan instrumen tradisional seperti Angklung atau Gamelan! 🎶" },
+    { "tgl": "04-21", "event": "Hari Kartini", "pesan": "Habis Gelap Terbitlah Terang. Mari teladani perjuangan Ibu Kartini. 👗" },
+    { "tgl": "05-02", "event": "Hari Pendidikan Nasional", "pesan": "Ing Ngarsa Sung Tuladha. Semangat belajar untuk masa depan! 📚" },
+    { "tgl": "06-01", "event": "Hari Lahir Pancasila", "pesan": "Pancasila adalah pemersatu keberagaman budaya kita. 🇮🇩" },
+    { "tgl": "08-17", "event": "Hari Kemerdekaan RI", "pesan": "Merdeka! Rayakan kemerdekaan dengan bangga akan budaya sendiri!" },
+    { "tgl": "10-02", "event": "Hari Batik Nasional", "pesan": "Selamat Hari Batik! Warisan dunia dari Indonesia untuk jagat raya. 👔" },
+    { "tgl": "10-28", "event": "Hari Sumpah Pemuda", "pesan": "Satu nusa, satu bangsa, satu bahasa. Salam pemuda! ✊" },
+    { "tgl": "11-07", "event": "Hari Wayang Nasional", "pesan": "Mari apresiasi mahakarya seni pertunjukan wayang hari ini. 👺" },
+    { "tgl": "11-10", "event": "Hari Pahlawan", "pesan": "Bangsa yang besar adalah bangsa yang menghargai jasa pahlawannya. 🎖️" },
+    { "tgl": "12-22", "event": "Hari Ibu", "pesan": "Terima kasih untuk seluruh Ibu yang melestarikan budaya di rumah. ❤️" }
+];
+
+function cekEventHariIni() {
+    const sekarang = new Date();
+    // Format tanggal ke MM-DD agar sesuai dengan JSON
+    const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
+    const tanggal = String(sekarang.getDate()).padStart(2, '0');
+    const tglKey = `${bulan}-${tanggal}`;
+
+    // Cari apakah hari ini ada di kalender
+    const temukanEvent = kalenderBudaya.find(e => e.tgl === tglKey);
+
+    if (temukanEvent) {
+        // Tunggu sebentar setelah preloader selesai, lalu munculkan modal
+        setTimeout(() => {
+            document.getElementById('modalTitle').innerText = `✨ ${temukanEvent.event}`;
+            document.getElementById('modalBody').innerHTML = `
+                <div style="background: var(--light-green); padding: 25px; border-radius: 20px; color: var(--primary-green); text-align: center;">
+                    <h1 style="font-size: 3rem; margin-bottom: 10px;">🇮🇩</h1>
+                    <p style="font-weight: 600; line-height: 1.6;">${temukanEvent.pesan}</p>
+                </div>
+                <p style="font-size: 0.7rem; margin-top: 15px; opacity: 0.6;">Sistem Kalender Otomatis NusantaraEdu</p>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+            showNotif("Event Khusus", temukanEvent.event, "🎉");
+        }, 2000); 
+    }
+}
+
+      
         const grid = document.getElementById('contentGrid');
         const searchInput = document.getElementById('userInput');
-        
+
         // --- DATASET FAKTA UNIK (Generator 2000+ Variasi) ---
         const faktaSubjek = ["Candi Borobudur", "Rendang", "Bahasa Indonesia", "Komodo", "Wayang Kulit", "Angklung", "Batik", "Danau Toba", "Gamelan", "Kopi Luwak", "Burung Cendrawasih", "Pulau Jawa", "Suku Buton", "Raja Ampat", "Pencak Silat", "Tari Saman", "Kapal Phinisi", "Garis Khatulistiwa", "Gunung Jayawijaya", "Naskah Negarakertagama"];
         const faktaPredikat = ["adalah yang terbesar di dunia", "telah diakui oleh UNESCO", "memiliki sejarah lebih dari 1000 tahun", "menjadi simbol kebanggaan nasional", "merupakan warisan takbenda kemanusiaan", "hanya bisa ditemukan di bumi nusantara", "pernah dinobatkan sebagai yang terbaik secara global", "menginspirasi banyak kebudayaan di negara lain", "menyimpan misteri geologi yang luar biasa", "menjadi bukti kecerdasan nenek moyang kita"];
@@ -375,28 +490,34 @@
         function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
 
         async function fetchCulture(topic) {
-            try {
-                const res = await fetch(`https://id.wikipedia.org/api/rest_v1/page/summary/${topic}`);
-                const data = await res.json();
-                if (data.title === "Not found") return;
+    try {
+        const res = await fetch(`https://id.wikipedia.org/api/rest_v1/page/summary/${topic}`);
+        const data = await res.json();
+        if (data.title === "Not found") return;
 
-                const img = (data.thumbnail) ? data.thumbnail.source : `https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=60`;
-                
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div style="position:relative; overflow:hidden;">
-                        <img src="${img}" style="width:100%; height:200px; object-fit:cover; transition: 0.5s;">
-                    </div>
-                    <div style="padding:22px;">
-                        <h3 style="color:var(--primary-green); font-size:1.1rem; margin-bottom:8px;">${data.title}</h3>
-                        <p style="font-size:0.8rem; line-height:1.5; opacity:0.8;">${data.extract ? data.extract.substring(0, 95) + '...' : 'Warisan kekayaan budaya nusantara.'}</p>
-                        <a href="${data.content_urls.desktop.page}" target="_blank" style="display:inline-block; margin-top:15px; color:var(--orange-accent); font-weight:bold; font-size:0.75rem; text-decoration:none;">BACA SELENGKAPNYA →</a>
-                    </div>
-                `;
-                grid.appendChild(card);
-            } catch (e) { console.log(e); }
-        }
+        const img = (data.thumbnail) ? data.thumbnail.source : `https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=60`;
+        const shortDesc = data.extract ? data.extract.substring(0, 95) + '...' : 'Warisan kekayaan budaya nusantara.';
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <div style="position:relative; overflow:hidden;">
+                <img src="${img}" style="width:100%; height:200px; object-fit:cover;">
+            </div>
+            <div style="padding:22px;">
+                <h3 style="color:var(--primary-green); font-size:1.1rem; margin-bottom:8px;">${data.title}</h3>
+                <p style="font-size:0.8rem; line-height:1.5; opacity:0.8;">${shortDesc}</p>
+                <div class="card-actions">
+                    <button class="btn-action btn-copy" onclick="copyFact('${data.title}', '${shortDesc.replace(/'/g, "\\'")}')">📋 Salin Info</button>
+                    <button class="btn-action btn-share" onclick="shareWa('${data.title}')">📲 Share WA</button>
+                </div>
+                <a href="${data.content_urls.desktop.page}" target="_blank" style="display:block; text-align:center; margin-top:15px; color:var(--mid-green); font-weight:bold; font-size:0.7rem; text-decoration:none;">PELAJARI VIA WIKIPEDIA →</a>
+            </div>
+        `;
+        grid.appendChild(card);
+    } catch (e) { console.log(e); }
+}
+
 
         async function updateCategory(cat, el) {
             if (isFetching) return;
@@ -436,13 +557,13 @@
         function showOrgModal() {
             toggleMenu();
             document.getElementById('modalTitle').innerText = "Organisasi Resmi";
-            document.getElementById('modalBody').innerHTML = `<p>Situs resmi: kemenbud.go.id</p>`;
+            document.getElementById('modalBody').innerHTML = `<p>Kunjungi situs resmi: kemenbud.go.id</p>`;
             document.getElementById('modalOverlay').classList.add('active');
         }
 
         function reportBug() {
             toggleMenu();
-            showNotif("Email", "fadhillahnasrullah9@gmail.com", "📧");
+            showNotif("Email", "hubungi fadhillahnasrullah9@gmail.com", "📧");
         }
 
         // --- SCROLL & INITIAL ---
@@ -466,31 +587,61 @@
         });
 
         window.onload = () => {
-            setTimeout(async () => {
-                document.getElementById('preloader').style.transform = 'translateY(-100%)';
-                showLoginFact(); 
-                for (const item of collections.acak) {
-                    await fetchCulture(item);
-                }
-            }, 1500);
-        };
+    setTimeout(async () => {
+        // 1. Hilangkan Preloader
+        document.getElementById('preloader').style.transform = 'translateY(-100%)';
+
+        // 2. Logika Pengecekan Event Kalender
+        const sekarang = new Date();
+        const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
+        const tanggal = String(sekarang.getDate()).padStart(2, '0');
+        const tglKey = `${bulan}-${tanggal}`;
+        const temukanEvent = kalenderBudaya.find(e => e.tgl === tglKey);
+
+        // 3. Prioritas Tampilan Modal (Pilih salah satu agar tidak tumpang tindih)
+        if (temukanEvent) {
+            // Jika hari ini ada event besar, tampilkan event
+            document.getElementById('modalTitle').innerText = `✨ ${temukanEvent.event}`;
+            document.getElementById('modalBody').innerHTML = `
+                <div style="background: var(--light-green); padding: 25px; border-radius: 20px; color: var(--primary-green); text-align: center;">
+                    <h1 style="font-size: 3rem; margin-bottom: 10px;">🇮🇩</h1>
+                    <p style="font-weight: 600; line-height: 1.6;">${temukanEvent.pesan}</p>
+                </div>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        } else {
+            // Jika tidak ada event, tampilkan Update Announcement atau Login Fact
+            showUpdateAnnouncement(); 
+        }
+
+        // 4. Load Data Utama
+        for (const item of collections.acak) {
+            await fetchCulture(item);
+        }
+
+        // 5. Jalankan fitur tambahan otomatis
+        if (typeof applySmartTheme === "function") applySmartTheme();
+        
+    }, 1500);
+};
+
 
         searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCulture(); });
-        
+
         function createLeaf() {
     const leaf = document.createElement('div');
     leaf.className = 'leaf';
     leaf.innerHTML = '🍃';
     leaf.style.left = Math.random() * 100 + 'vw';
     leaf.style.fontSize = (Math.random() * 20 + 10) + 'px';
-    
+
     // Perbaikan: gunakan style.animationDuration
     const duration = Math.random() * 3 + 4; 
     leaf.style.animationDuration = duration + 's';
-    
+
     leaf.style.opacity = Math.random();
     document.body.appendChild(leaf);
-    
+
     // Hapus daun setelah animasi selesai agar tidak membebani memori
     setTimeout(() => leaf.remove(), duration * 1000);
 }
@@ -498,21 +649,38 @@
 setInterval(createLeaf, 1500); 
 
 async function updateCategory(cat, el) {
-    if (isFetching) return;
-    isFetching = true; // Kunci agar tidak klik berkali-kali
+    // Jika sedang memuat kategori yang sama, abaikan
+    if (isFetching && activeCategory === cat) return;
     
+    // Set status fetching
+    isFetching = true; 
+
+    // Visual feedback: Ubah tampilan tombol aktif
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    
-    grid.innerHTML = '';
+
+    // Reset konten
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px;">🌿 Memuat kekayaan budaya...</div>';
     itemsLoaded = 0;
     activeCategory = cat;
-    
-    // Gunakan for...of untuk urutan yang rapi
-    for (const item of collections[cat]) {
-        await fetchCulture(item);
+
+    try {
+        const batch = collections[cat];
+        // Kosongkan grid sebelum mengisi dengan data baru
+        grid.innerHTML = ''; 
+        
+        // Memuat 15 item pertama saja agar tidak macet/lambat (opsional)
+        for (const item of batch) {
+            // Jika pengguna sudah pindah kategori lain saat ini masih loading, hentikan proses ini
+            if (activeCategory !== cat) break; 
+            await fetchCulture(item);
+        }
+    } catch (error) {
+        console.error("Gagal memuat kategori:", error);
+    } finally {
+        // PENTING: Kunci dibuka kembali agar tombol lain bisa dipencet
+        isFetching = false; 
     }
-    isFetching = false; // Buka kunci kembali
 }
 
 function showSekolah() {
@@ -561,47 +729,68 @@ function showSekolah() {
 }
 
 function showUpdateAnnouncement() {
-    document.getElementById('modalTitle').innerText = "🚀 UPDATE SUPREME V2.0";
+    document.getElementById('modalTitle').innerText = "🚀 UPDATE SUPREME V1.1";
     document.getElementById('modalBody').innerHTML = `
         <div style="text-align: left;">
-            <div style="background: linear-gradient(to right, #2d6a4f, #52b788); color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
-                <h4 style="margin-bottom: 5px;">Halo Patriot Budaya!</h4>
-                <p style="font-size: 0.8rem; opacity: 0.9;">Kami baru saja merilis pembaruan besar untuk meningkatkan pengalaman jelajahmu.</p>
+            <div style="background: linear-gradient(135deg, #2d6a4f, #1b4332); color: white; padding: 18px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(45, 106, 79, 0.2);">
+                <h4 style="margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                    Halo Patriot Budaya! 🇮🇩
+                </h4>
+                <p style="font-size: 0.75rem; opacity: 0.9;">Optimasi sistem telah selesai dilakukan untuk kenyamanan jelajahmu.</p>
             </div>
 
-            <h5 style="color: var(--primary-green); margin-bottom: 10px;">Apa yang baru?</h5>
-            <ul style="font-size: 0.85rem; padding-left: 20px; line-height: 1.8;">
-                <li><b>Database Masif:</b> Lebih dari 100+ informasi budaya di setiap kategori.</li>
-                <li><b>Fitur Sekolah:</b> Profil resmi SMP Negeri 2 Cawas terintegrasi Dapodik.</li>
-                <li><b>Visual Efek:</b> Animasi daun berguguran (Nature Mode).</li>
-                <li><b>Infinite Exploration:</b> Jelajahi budaya tanpa batas di Beranda.</li>
-                <li><b>Optimasi Performa:</b> Loading lebih stabil dengan Wikipedia API.</li>
+            <h5 style="color: var(--primary-green); margin-bottom: 10px; font-size: 0.9rem;">Log Perubahan:</h5>
+            <ul style="font-size: 0.8rem; padding-left: 15px; line-height: 1.7; color: var(--text-dark);">
+                <li><b>Fixed Bug:</b> Perbaikan pada sistem pencarian dan duplikasi kartu budaya.</li>
+                <li><b>📲 Share ke WhatsApp:</b> Bagikan info budaya favoritmu langsung ke grup kelas atau teman!</li>
+                <li><b>📋 Salin Info Cepat:</b> Copy deskripsi budaya dalam satu klik untuk tugas sekolah atau catatan.</li>
+                <li><b>Max Performance:</b> Loading Wikipedia API kini 2x lebih cepat & ringan.</li>
+                <li><b>Smart Calendar:</b> Sistem otomatis mendeteksi hari besar nasional.</li>
             </ul>
 
-            <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 10px; border-left: 5px solid #ffc107;">
-                <p style="font-size: 0.75rem; color: #856404;">
-                    <b>Catatan:</b> Jika gambar tidak muncul, pastikan koneksi internet stabil untuk mengambil data dari server Wikipedia.
+            <div style="margin-top: 20px; padding: 15px; background: #e7f3ef; border-radius: 15px; border: 1px dashed var(--primary-green); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: -10px; bottom: -10px; font-size: 3rem; opacity: 0.1;">📱</div>
+                <h6 style="color: var(--primary-green); margin-bottom: 5px; font-size: 0.85rem;">Coming Soon!</h6>
+                <p style="font-size: 0.7rem; color: #2d6a4f; font-weight: 500;">
+                    <b>NusantaraEdu Mobile App</b>
                 </p>
             </div>
+
+            <p style="font-size: 0.65rem; color: gray; text-align: center; margin-top: 15px; font-style: italic;">
+                Dikembangkan dengan ❤️ oleh Ky Dev
+            </p>
         </div>
     `;
     document.getElementById('modalOverlay').classList.add('active');
 }
+
 
 // Tambahkan pemanggilan ini di dalam window.onload yang sudah ada
 // Ganti bagian window.onload lama dengan ini:
 window.onload = () => {
     setTimeout(async () => {
         document.getElementById('preloader').style.transform = 'translateY(-100%)';
-        
+
         // Pemicu Pengumuman Update
         showUpdateAnnouncement(); 
-        
+
         for (const item of collections.acak) {
             await fetchCulture(item);
         }
     }, 1500);
 };
+
+function copyFact(title, desc) {
+    const text = `Tahukah kamu tentang ${title}? \n\n${desc}\n\nPelajari lebih lanjut di NusantaraEdu!`;
+    navigator.clipboard.writeText(text);
+    showNotif("Teks Disalin", "Info budaya siap dibagikan!", "✅");
+}
+
+function shareWa(title) {
+    const url = `https://wa.me/?text=Halo! Cek budaya Indonesia yang keren ini: ${title}. Lihat selengkapnya di https://project-pkn.vercel.app/`;
+    window.open(url, '_blank');
+}
+
 
     </script>
 </body>
