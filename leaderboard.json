@@ -1,3 +1,7 @@
 [
-  { "nama": "Ky Dev", "skor": 100 }
+  { "nama": "Ky Dev", "skor": 100 },
+  { "nama": "User1", "skor": 90 },
+  { "nama": "User2", "skor": 85 },
+  { "nama": "User3", "skor": 80 },
+  { "nama": "User4", "skor": 75 }
 ]
