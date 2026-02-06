@@ -1295,7 +1295,7 @@ async function showLeaderboard() {
 
     try {
         // MENGGUNAKAN LINK RAW KAMU
-        const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/main/leaderboard.json';
+        const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/refs/heads/main/leaderboard.json';
         
         // Ditambah timestamp (?t=) supaya data selalu fresh tidak nyangkut di cache HP
         const response = await fetch(url + '?t=' + new Date().getTime());
