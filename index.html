@@ -1237,28 +1237,28 @@ async function kirimSkorOtomatis(nama, nilai) {
         const response = await fetch('/api/score', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Gunakan nama properti yang sederhana: 'nama' dan 'skor'
             body: JSON.stringify({ nama: nama, skor: nilai })
         });
 
-        // TUNGGU RESPON DARI SERVER (Ini yang bikin tidak stuck)
         const result = await response.json();
 
         if (response.ok) {
-            statusEl.innerHTML = "✅ Skor berhasil masuk Leaderboard!";
+            // PERBAIKAN: Berikan feedback visual yang jelas bahwa proses SELESAI
+            statusEl.innerHTML = `
+                <div style="background: #d1fae5; color: #065f46; padding: 10px; border-radius: 10px; margin-top: 10px;">
+                    ✅ Skor Berhasil Masuk Leaderboard!
+                </div>
+                <button onclick="closeModal()" style="margin-top:15px; background:var(--primary-green); color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;">Selesai</button>
+            `;
             showNotif("Sukses", "Skor kamu sudah tercatat!", "🏆");
         } else {
-            statusEl.innerHTML = `❌ Gagal: ${result.error || 'Server Error'}`;
+            statusEl.innerHTML = `<div style="color:red;">❌ Gagal: ${result.error || 'Server Error'}</div>`;
         }
     } catch (err) {
-        statusEl.innerHTML = "❌ Koneksi Gagal (Cek internet/Vercel).";
+        statusEl.innerHTML = "<div style="color:red;">❌ Koneksi Gagal. Skor tetap tersimpan di sertifikatmu.</div>";
         console.error(err);
     }
 }
-
-
-
-
 
 // Mencegah Klik Kanan
 document.addEventListener('contextmenu', (e) => {
