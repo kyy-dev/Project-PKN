@@ -285,6 +285,33 @@ body.dark-mode .rec-card { background: var(--dark-card); border-color: #333; }
     box-shadow: 0 10px 20px rgba(45, 106, 79, 0.3);
 }
 
+/* Animasi Loading untuk Pengiriman Skor */
+@keyframes loadingProgress {
+    0% { width: 0%; left: 0; }
+    50% { width: 70%; left: 15%; }
+    100% { width: 100%; left: 100%; }
+}
+
+.load-bar {
+    position: relative;
+    overflow: hidden;
+    background: #e2e8f0; /* Warna dasar abu-abu terang */
+    border-radius: 10px;
+}
+
+.load-progress-animate {
+    position: absolute;
+    height: 100%;
+    background: var(--orange-accent);
+    animation: loadingProgress 2s infinite linear;
+}
+
+/* Tambahan agar teks status lebih rapi */
+#statusKirim {
+    transition: all 0.3s ease;
+    min-height: 50px;
+}
+
     </style>
 </head>
 <body>
@@ -1233,6 +1260,33 @@ function tampilkanSertifikat() {
 // FUNGSI JEMBATAN KE VERCEL
 async function kirimSkorOtomatis(nama, nilai) {
     const statusEl = document.getElementById('statusKirim');
+    
+    // 1. Tampilan awal saat proses loading mulai
+    statusEl.innerHTML = `
+        <div style="margin-top:20px; text-align:center; padding:15px; background:rgba(0,0,0,0.02); border-radius:20px; border: 1px dashed #ddd;">
+            <div class="load-bar" style="width:100%; height:8px; margin-bottom:15px; background:#eee; border-radius:10px; overflow:hidden;">
+                <div class="load-progress-animate" style="height:100%; background:var(--orange-accent); width:30%;"></div>
+            </div>
+            
+            <p style="color:var(--primary-green); font-size:0.85rem; font-weight:bold; margin-bottom:5px;">
+                ⏳ Sinkronisasi Cloud...
+            </p>
+            
+            <p style="font-size:0.75rem; color:#4a5568; line-height:1.4; margin-bottom:15px;">
+                Sedang mengamankan skor ke database. Jika proses ini terasa lama, 
+                <b>jangan khawatir</b>, skor akan tetap terkirim di latar belakang.
+            </p>
+
+            <button onclick="closeModal()" style="background:transparent; border:1px solid var(--mid-green); color:var(--mid-green); padding:8px 15px; border-radius:50px; font-size:0.7rem; font-weight:bold; cursor:pointer; transition: 0.3s;">
+                Klik untuk Tutup (Tetap Kirim)
+            </button>
+            
+            <p style="font-size:0.6rem; color:gray; margin-top:10px; font-style:italic;">
+                *Papan peringkat akan terupdate otomatis dalam beberapa menit.
+            </p>
+        </div>
+    `;
+
     try {
         const response = await fetch('/api/score', { 
             method: 'POST',
@@ -1242,21 +1296,33 @@ async function kirimSkorOtomatis(nama, nilai) {
 
         const result = await response.json();
 
+        // 2. Jika Berhasil
         if (response.ok) {
-            // PERBAIKAN: Berikan feedback visual yang jelas bahwa proses SELESAI
             statusEl.innerHTML = `
-                <div style="background: #d1fae5; color: #065f46; padding: 10px; border-radius: 10px; margin-top: 10px;">
-                    ✅ Skor Berhasil Masuk Leaderboard!
+                <div style="background: #d1fae5; color: #065f46; padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid #10b981; text-align:center;">
+                    <b style="display:block; margin-bottom:5px;">✅ SKOR TERCATAT!</b>
+                    <p style="font-size:0.8rem;">Selamat ${nama}, namamu telah masuk dalam sejarah Patriot Budaya.</p>
                 </div>
-                <button onclick="closeModal()" style="margin-top:15px; background:var(--primary-green); color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;">Selesai</button>
             `;
             showNotif("Sukses", "Skor kamu sudah tercatat!", "🏆");
         } else {
-            statusEl.innerHTML = `<div style="color:red;">❌ Gagal: ${result.error || 'Server Error'}</div>`;
+            // 3. Jika Server Error
+            statusEl.innerHTML = `
+                <div style="color:#991b1b; background:#fee2e2; padding:12px; border-radius:12px; margin-top:15px; font-size:0.8rem;">
+                    ❌ <b>Gagal Kirim:</b> ${result.error || 'Server sedang sibuk'}. <br>
+                    Tapi tenang, sertifikatmu tetap sah!
+                </div>
+            `;
         }
     } catch (err) {
-        statusEl.innerHTML = "<div style="color:red;">❌ Koneksi Gagal. Skor tetap tersimpan di sertifikatmu.</div>";
-        console.error(err);
+        // 4. Jika Koneksi Putus/Lama Sekali (Timeout)
+        statusEl.innerHTML = `
+            <div style="color:#92400e; background:#fef3c7; padding:12px; border-radius:12px; margin-top:15px; font-size:0.75rem; border: 1px solid #f59e0b;">
+                ⚠️ <b>Koneksi Kurang Stabil:</b> Pengiriman mungkin tertunda. <br>
+                Silakan screenshot sertifikat ini sebagai bukti nilaimu.
+            </div>
+        `;
+        console.error("Fetch Error:", err);
     }
 }
 
