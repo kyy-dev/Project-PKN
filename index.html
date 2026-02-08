@@ -1237,24 +1237,25 @@ async function kirimSkorOtomatis(nama, nilai) {
         const response = await fetch('/api/score', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            // Gunakan nama properti yang sederhana: 'nama' dan 'skor'
             body: JSON.stringify({ nama: nama, skor: nilai })
         });
-        
+
+        // TUNGGU RESPON DARI SERVER (Ini yang bikin tidak stuck)
         const result = await response.json();
 
         if (response.ok) {
             statusEl.innerHTML = "✅ Skor berhasil masuk Leaderboard!";
             showNotif("Sukses", "Skor kamu sudah tercatat!", "🏆");
         } else {
-            // Jika Vercel menolak (Error 500 atau 404)
-            statusEl.innerHTML = `❌ Error: ${result.error || 'Server Bermasalah'}`;
-            console.error("Detail Error:", result);
+            statusEl.innerHTML = `❌ Gagal: ${result.error || 'Server Error'}`;
         }
     } catch (err) {
-        statusEl.innerHTML = "❌ Gagal terhubung ke Server.";
-        console.error("Network Error:", err);
+        statusEl.innerHTML = "❌ Koneksi Gagal (Cek internet/Vercel).";
+        console.error(err);
     }
 }
+
 
 
 
