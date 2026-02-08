@@ -1232,26 +1232,30 @@ function tampilkanSertifikat() {
 
 // FUNGSI JEMBATAN KE VERCEL
 async function kirimSkorOtomatis(nama, nilai) {
+    const statusEl = document.getElementById('statusKirim');
     try {
-        // Gunakan path relatif '/api/score' agar Vercel tahu ini memanggil folder api/score.js kamu
         const response = await fetch('/api/score', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nama: nama, skor: nilai })
         });
         
+        const result = await response.json();
+
         if (response.ok) {
-            document.getElementById('statusKirim').innerHTML = "✅ Skor berhasil masuk Leaderboard!";
+            statusEl.innerHTML = "✅ Skor berhasil masuk Leaderboard!";
+            showNotif("Sukses", "Skor kamu sudah tercatat!", "🏆");
         } else {
-            // Tambahkan ini untuk melihat jika ada error dari server
-            const errorData = await response.json();
-            console.error("Detail Error:", errorData);
+            // Jika Vercel menolak (Error 500 atau 404)
+            statusEl.innerHTML = `❌ Error: ${result.error || 'Server Bermasalah'}`;
+            console.error("Detail Error:", result);
         }
     } catch (err) {
-        document.getElementById('statusKirim').innerHTML = "❌ Gagal sinkronisasi otomatis.";
-        console.error(err);
+        statusEl.innerHTML = "❌ Gagal terhubung ke Server.";
+        console.error("Network Error:", err);
     }
 }
+
 
 
 
