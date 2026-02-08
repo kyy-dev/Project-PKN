@@ -916,61 +916,67 @@ function showUpdateAnnouncement() {
 
 
 window.onload = () => {
+    const preloader = document.getElementById('preloader');
+    
+    // 1. Fungsi Utama Penghilang Preloader
+    const hilangkanPreloader = () => {
+        if (preloader) {
+            preloader.style.transform = 'translateY(-100%)';
+            setTimeout(() => preloader.remove(), 800);
+        }
+    };
+
+    // 2. TIMEOUT DARURAT (Failsafe)
+    // Jika dalam 4 detik konten belum siap, paksa masuk agar tidak stuck di logo
+    const forceLoad = setTimeout(() => {
+        console.warn("Loading lambat, memaksa masuk...");
+        hilangkanPreloader();
+    }, 4000);
+
+    // 3. JALANKAN PROSES PEMUATAN DATA
     setTimeout(async () => {
-        // 1. Hilangkan Preloader
-        const preloader = document.getElementById('preloader');
-        if (preloader) preloader.style.transform = 'translateY(-100%)';
+        try {
+            // --- LOGIKA EVENT & FAKTA (Pop-up muncul di awal) ---
+            const sekarang = new Date();
+            const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
+            const tanggal = String(sekarang.getDate()).padStart(2, '0');
+            const tglKey = `${bulan}-${tanggal}`;
+            const temukanEvent = kalenderBudaya.find(e => e.tgl === tglKey);
 
-        // --- SISTEM TANGGAL & EVENT ---
-        const sekarang = new Date();
-        const tglHariIni = sekarang.toLocaleDateString('id-ID', { 
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-        });
-
-        const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
-        const tanggal = String(sekarang.getDate()).padStart(2, '0');
-        const tglKey = `${bulan}-${tanggal}`;
-
-        const temukanEvent = kalenderBudaya.find(e => e.tgl === tglKey);
-
-
-        // --- LOGIKA MODAL ACAK (Fakta Lebih Sering) ---
-        const acakInfo = Math.random();
-
-        if (temukanEvent) {
-            // Jika ada hari besar: 70% Event, 30% Fakta
-            if (acakInfo > 0.3) {
-                tampilkanEventBudaya(temukanEvent);
+            const acakInfo = Math.random();
+            if (temukanEvent) {
+                (acakInfo > 0.3) ? tampilkanEventBudaya(temukanEvent) : showLoginFact();
             } else {
-                showLoginFact();
+                (acakInfo < 0.75) ? showLoginFact() : showUpdateAnnouncement();
             }
-        } else {
-            // Jika hari biasa: 75% Fakta Unik, 25% Update App
-            // Menghapus localStorage agar fakta muncul SETIAP REFRESH (untuk testing)
-            if (acakInfo < 0.75) {
-                showLoginFact();
-            } else {
-                showUpdateAnnouncement();
+
+            // --- SEGERA HILANGKAN PRELOADER DI SINI ---
+            // Agar user bisa melihat UI Dashboard meskipun data grid belum muncul semua
+            clearTimeout(forceLoad);
+            hilangkanPreloader();
+
+            // --- MUAT DATA KONTEN (Di latar belakang setelah masuk) ---
+            const koleksiTeracak = [...collections.acak].sort(() => Math.random() - 0.5);
+            grid.innerHTML = ''; // Bersihkan skeleton/grid
+            
+            // Muat 6-12 item pertama
+            for (const item of koleksiTeracak.slice(0, 8)) {
+                // Gunakan try-catch per item agar jika 1 error, yang lain tetap muncul
+                try {
+                    await fetchCulture(item);
+                } catch (e) { 
+                    console.error("Gagal muat item:", item);
+                }
             }
+            itemsLoaded = 8;
+
+        } catch (err) {
+            console.error("Kritis: Ada error di sistem loading:", err);
+            hilangkanPreloader(); // Pastikan tetap masuk meskipun ada error fatal
         }
-
-        // --- SISTEM BERANDA ACAK TOTAL ---
-        // Mengambil semua koleksi acak dan mengacak urutannya
-        const koleksiTeracak = [...collections.acak].sort(() => Math.random() - 0.5);
-
-        // Membersihkan grid terlebih dahulu
-        grid.innerHTML = '';
-
-        // Memuat 12 item pertama secara acak untuk kecepatan awal
-        for (const item of koleksiTeracak.slice(0, 12)) {
-            await fetchCulture(item);
-        }
-
-        // Simpan sisa item ke library untuk infinite scroll jika diperlukan
-        itemsLoaded = 12; 
-
-    }, 1500);
+    }, 800); // Delay sedikit agar transisi halus
 };
+
 
 // Fungsi pembantu agar kode lebih bersih
 function tampilkanEventBudaya(event) {
