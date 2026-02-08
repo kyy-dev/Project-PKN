@@ -1,61 +1,52 @@
-export default async function handler(req, res) { // Pakai huruf kecil 'export'
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
+  const { nama, skor } = req.body;
+  const token = process.env.GH_TOKEN;
+  const repo = "kyy-dev/Project-PKN"; // Pastikan ini username/repo kamu
+  const path = "leaderboard.json";
 
-    const { nama, skor } = req.body;
-    const token = process.env.GH_TOKEN;
-    const repo = 'kyy-dev/Project-PKN';
-
-    try {
-        // 1. Ambil data dari GitHub
-        const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/leaderboard.json`, {
-            headers: { Authorization: `token ${token}` }
-        });
-        
-        const fileData = await getRes.json();
-        
-        // 2. Dekode konten (tambahkan pengaman jika JSON kosong)
-        let content = [];
-        if (fileData.content) {
-            const decoded = Buffer.from(fileData.content, 'base64').toString();
-            content = JSON.parse(decoded || "[]");
-        }
-
-        // 3. Tambah skor baru & urutkan Top 5
-        content.push({ nama, skor });
-        content.sort((a, b) => b.skor - a.skor);
-        const topFive = content.slice(0, 5);
-        
-        // 4. Encode kembali ke Base64
-        const updatedContent = Buffer.from(JSON.stringify(topFive, null, 2)).toString('base64');
-
-        // 5. Push kembali ke GitHub
-        const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/leaderboard.json`, {
-            method: 'PUT',
-            headers: { 
-                Authorization: `token ${token}`, 
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({
-                message: `🏆 Skor Baru: ${nama} (${skor})`,
-                content: updatedContent,
-                sha: fileData.sha // Penting untuk update file yang sama
-            })
-        });
-
-        if (putRes.ok) {
-            res.status(200).json({ success: true, message: "Papan peringkat diperbarui!" });
-        } else {
-            const errorText = await putRes.text();
-            throw new Error(errorText);
-        }
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+  try {
+    // 1. Ambil data lama dari GitHub
+    const getFile = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    const fileData = await getFile.json();
+    
+    // Decode isi file lama
+    let currentData = [];
+    if (fileData.content) {
+      const contentStr = Buffer.from(fileData.content, 'base64').toString();
+      currentData = JSON.parse(contentStr);
     }
-}
 
+    // 2. Tambah skor baru
+    currentData.push({ nama, skor, tanggal: new Date().toISOString() });
+    
+    // Urutkan skor tertinggi di atas
+    currentData.sort((a, b) => b.skor - a.skor);
+
+    // 3. Kirim balik ke GitHub
+    const updateFile = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `Update skor: ${nama}`,
+        content: Buffer.from(JSON.stringify(currentData, null, 2)).toString('base64'),
+        sha: fileData.sha // Ini sangat penting!
+      })
+    });
+
+    if (updateFile.ok) {
+      res.status(200).json({ message: 'Berhasil simpan skor!' });
+    } else {
+      const errorDetail = await updateFile.json();
+      res.status(500).json({ error: 'Gagal update GitHub', detail: errorDetail });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
