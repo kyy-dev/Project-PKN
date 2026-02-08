@@ -19,7 +19,7 @@
 }
 
 
-    
+
         :root {
             --primary-green: #2d6a4f;
             --mid-green: #52b788;
@@ -422,7 +422,7 @@ function cekEventHariIni() {
     }
 }
 
-      
+
         const grid = document.getElementById('contentGrid');
         const searchInput = document.getElementById('userInput');
 
@@ -542,7 +542,7 @@ function cekEventHariIni() {
         async function fetchCulture(topic) {
     try {
         const res = await fetch(`https://id.wikipedia.org/api/rest_v1/page/summary/${topic}`);
-        
+
         if (!res.ok) {
             throw new Error('Data tidak ditemukan atau server sibuk');
         }
@@ -657,7 +657,7 @@ function cekEventHariIni() {
 
         function reportBug() {
     toggleMenu(); // Tutup menu samping
-    
+
     document.getElementById('modalTitle').innerText = "🐜 Lapor Kendala Aplikasi";
     document.getElementById('modalBody').innerHTML = `
         <div style="text-align: left; font-size: 0.9rem;">
@@ -703,7 +703,7 @@ function kirimBugKeEmail() {
     );
 
     window.location.href = `mailto:fadhillahnasrullah9@gmail.com?subject=${subject}&body=${body}`;
-    
+
     closeModal();
 }
 
@@ -728,7 +728,7 @@ function kirimBugKeEmail() {
             }
         });
 
-        
+
 
 
 
@@ -757,7 +757,7 @@ setInterval(createLeaf, 1500);
 async function updateCategory(cat, el) {
     // Jika sedang memuat kategori yang sama, abaikan
     if (isFetching && activeCategory === cat) return;
-    
+
     // Set status fetching
     isFetching = true; 
 
@@ -774,7 +774,7 @@ async function updateCategory(cat, el) {
         const batch = collections[cat];
         // Kosongkan grid sebelum mengisi dengan data baru
         grid.innerHTML = ''; 
-        
+
         // Memuat 15 item pertama saja agar tidak macet/lambat (opsional)
         for (const item of batch) {
             // Jika pengguna sudah pindah kategori lain saat ini masih loading, hentikan proses ini
@@ -899,11 +899,11 @@ window.onload = () => {
         const tglHariIni = sekarang.toLocaleDateString('id-ID', { 
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
         });
-        
+
         const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
         const tanggal = String(sekarang.getDate()).padStart(2, '0');
         const tglKey = `${bulan}-${tanggal}`;
-        
+
         const temukanEvent = kalenderBudaya.find(e => e.tgl === tglKey);
 
 
@@ -930,7 +930,7 @@ window.onload = () => {
         // --- SISTEM BERANDA ACAK TOTAL ---
         // Mengambil semua koleksi acak dan mengacak urutannya
         const koleksiTeracak = [...collections.acak].sort(() => Math.random() - 0.5);
-        
+
         // Membersihkan grid terlebih dahulu
         grid.innerHTML = '';
 
@@ -938,7 +938,7 @@ window.onload = () => {
         for (const item of koleksiTeracak.slice(0, 12)) {
             await fetchCulture(item);
         }
-        
+
         // Simpan sisa item ke library untuk infinite scroll jika diperlukan
         itemsLoaded = 12; 
 
@@ -975,7 +975,7 @@ function shareWa(title) {
 function showDevMenu() {
     toggleMenu(); 
     document.getElementById('modalTitle').innerText = "🚀 Pusat Informasi Dev";
-    
+
     document.getElementById('modalBody').innerHTML = `
         <style>
             @keyframes slideUp {
@@ -1021,7 +1021,7 @@ function showDevMenu() {
 function showDevMenu() {
     toggleMenu(); 
     document.getElementById('modalTitle').innerText = "🏛️ HUB PENGEMBANG";
-    
+
     document.getElementById('modalBody').innerHTML = `
         <style>
             @keyframes ultraFade {
@@ -1168,14 +1168,14 @@ function startQuiz() {
     kuisAcak = [...databaseKuis].sort(() => Math.random() - 0.5); // Acak soal
     soalSekarang = 0;
     skor = 0;
-    
+
     tampilkanSoal();
 }
 
 function tampilkanSoal() {
     const data = kuisAcak[soalSekarang];
     document.getElementById('modalTitle').innerText = `Pertanyaan ${soalSekarang + 1}/20`;
-    
+
     let htmlPilihan = `<p style="margin-bottom:20px; font-weight:bold;">${data.q}</p>`;
     data.a.forEach((opt, idx) => {
         htmlPilihan += `<button class="quiz-option" onclick="cekJawaban(${idx})">${opt}</button>`;
@@ -1188,7 +1188,7 @@ function tampilkanSoal() {
 function cekJawaban(idx) {
     const benarnya = kuisAcak[soalSekarang].c;
     const opsi = document.querySelectorAll('.quiz-option');
-    
+
     if (idx === benarnya) {
         opsi[idx].classList.add('correct');
         skor += 5; // 5 poin x 20 soal = 100
@@ -1211,11 +1211,9 @@ function cekJawaban(idx) {
 function tampilkanSertifikat() {
     document.getElementById('modalTitle').innerText = "📜 Sertifikat Selesai";
     const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
-    
-    // Simpan skor di localStorage agar kamu bisa melihatnya jika nanti butuh fitur peringkat lokal
-    let history = JSON.parse(localStorage.getItem('rank_nusantara') || "[]");
-    history.push({ nama: namaUser, nilai: skor, waktu: tgl });
-    localStorage.setItem('rank_nusantara', JSON.stringify(history));
+
+    // 1. Jalankan pengiriman otomatis ke Vercel tanpa API Key
+    kirimSkorOtomatis(namaUser, skor);
 
     document.getElementById('modalBody').innerHTML = `
         <div id="certificate" style="background: #fff; border: 10px double var(--primary-green); padding: 30px; position: relative; color: #1b4332; font-family: 'serif';">
@@ -1226,32 +1224,35 @@ function tampilkanSertifikat() {
             <div class="score-circle">${skor}</div>
             <p style="font-size: 0.7rem; margin-top: 20px;">Diterbitkan pada: ${tgl}</p>
         </div>
-
-        <div style="margin-top:20px; background:#f0fdf4; border:2px dashed #16a34a; padding:15px; border-radius:15px;">
-            <p style="font-size:0.8rem; font-weight:bold; color:#16a34a; margin-bottom:10px;">📢 Laporkan Nilaimu untuk Masuk Peringkat!</p>
-            <button onclick="kirimKeEmail()" style="background:#16a34a; color:white; border:none; padding:12px; border-radius:12px; width:100%; font-weight:bold; cursor:pointer;">
-                📧 Kirim Nilai ke Email Dev
-            </button>
+        <div id="statusKirim" style="margin-top:15px; font-size:0.8rem; color:var(--mid-green); font-weight:bold;">
+            ⏳ Mengirim skor ke papan peringkat...
         </div>
     `;
 }
 
-function kirimKeEmail() {
-    const subject = encodeURIComponent(`Laporan Nilai Kuis: ${namaUser}`);
-    const body = encodeURIComponent(
-        `Halo Ky Dev,\n\n` +
-        `Saya telah menyelesaikan kuis di NusantaraEdu.\n` +
-        `Nama: ${namaUser}\n` +
-        `Skor: ${skor}/100\n` +
-        `Tanggal: ${new Date().toLocaleString()}\n\n` +
-        `Mohon masukkan saya ke daftar peringkat!`
-    );
-    
-    // Ganti email ini dengan emailmu
-    window.location.href = `mailto:fadhillahnasrullah9@gmail.com?subject=${subject}&body=${body}`;
-    
-    showNotif("Membuka Email", "Silakan klik 'Kirim' pada aplikasi emailmu", "📧");
+// FUNGSI JEMBATAN KE VERCEL
+async function kirimSkorOtomatis(nama, nilai) {
+    try {
+        // Gunakan path relatif '/api/score' agar Vercel tahu ini memanggil folder api/score.js kamu
+        const response = await fetch('/api/score', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nama: nama, skor: nilai })
+        });
+        
+        if (response.ok) {
+            document.getElementById('statusKirim').innerHTML = "✅ Skor berhasil masuk Leaderboard!";
+        } else {
+            // Tambahkan ini untuk melihat jika ada error dari server
+            const errorData = await response.json();
+            console.error("Detail Error:", errorData);
+        }
+    } catch (err) {
+        document.getElementById('statusKirim').innerHTML = "❌ Gagal sinkronisasi otomatis.";
+        console.error(err);
+    }
 }
+
 
 
 // Mencegah Klik Kanan
@@ -1296,12 +1297,12 @@ async function showLeaderboard() {
     try {
         // MENGGUNAKAN LINK RAW KAMU
         const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/refs/heads/main/leaderboard.json';
-        
+
         // Ditambah timestamp (?t=) supaya data selalu fresh tidak nyangkut di cache HP
         const response = await fetch(url + '?t=' + new Date().getTime());
-        
+
         if (!response.ok) throw new Error('Gagal ambil data');
-        
+
         const daftarPeringkat = await response.json();
 
         // Urutkan otomatis skor tertinggi ke terendah
@@ -1334,7 +1335,7 @@ async function showLeaderboard() {
         </div>`;
 
         document.getElementById('modalBody').innerHTML = html;
-        
+
     } catch (error) {
         document.getElementById('modalBody').innerHTML = `
             <div style="text-align:center; padding:20px;">
