@@ -344,8 +344,13 @@ body.dark-mode .rec-card { background: var(--dark-card); border-color: #333; }
     🧠 Uji Wawasan (Kuis) <span class="badge-new">SERU</span>
 </div>
 <div class="menu-item" onclick="showLeaderboard()" style="background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700;">
-    🏆 Papan Peringkat <span class="badge-new">TOP 5</span>
+    🏆 Papan Peringkat <span class="badge-new">LIVE</span>
 </div>
+
+<div class="menu-item" onclick="showHonorRoll()" style="background: linear-gradient(135deg, rgba(13, 27, 42, 0.1), rgba(27, 67, 50, 0.1)); border: 1px solid #fbbf24;">
+    🏛️ Monumen Kehormatan <span class="badge-new" style="background: #fbbf24; color: #000;">LEGACY</span>
+</div>
+
 <div class="menu-item" onclick="showBetaDownload()" style="background: rgba(45, 106, 79, 0.1); border: 1px solid var(--primary-green); position: relative;">
     📱 NusantaraEdu App <span class="badge-new" style="background: #007bff;">BETA</span>
 </div>
@@ -917,7 +922,7 @@ function showUpdateAnnouncement() {
 
 window.onload = () => {
     const preloader = document.getElementById('preloader');
-    
+
     // 1. Fungsi Utama Penghilang Preloader
     const hilangkanPreloader = () => {
         if (preloader) {
@@ -958,7 +963,7 @@ window.onload = () => {
             // --- MUAT DATA KONTEN (Di latar belakang setelah masuk) ---
             const koleksiTeracak = [...collections.acak].sort(() => Math.random() - 0.5);
             grid.innerHTML = ''; // Bersihkan skeleton/grid
-            
+
             // Muat 6-12 item pertama
             for (const item of koleksiTeracak.slice(0, 8)) {
                 // Gunakan try-catch per item agar jika 1 error, yang lain tetap muncul
@@ -1274,7 +1279,7 @@ function tampilkanSertifikat() {
 // ==========================================
 async function kirimSkorOtomatis(nama, nilai) {
     const statusEl = document.getElementById('statusKirim');
-    
+
     // Tampilan Loading "Jangan Khawatir"
     statusEl.innerHTML = `
         <div style="margin-top:20px; text-align:center; padding:15px; background:rgba(0,0,0,0.02); border-radius:20px; border: 1px dashed #ddd;">
@@ -1352,61 +1357,109 @@ function cekJawabanAman(idx) {
     // Jalankan logika cek jawaban asli di sini...
 }
 
+// --- FUNGSI 1: MONUMEN KEHORMATAN (Eksklusif & Statis) ---
+// --- FUNGSI MONUMEN KEHORMATAN: THE GRAND AWARDS ---
+// --- FUNGSI MONUMEN KEHORMATAN: APRESIASI SAHABAT NUSANTARA ---
+function showHonorRoll() {
+    toggleMenu();
+    document.getElementById('modalTitle').innerText = ""; 
+    
+    let html = `
+        <div style="font-family: 'Space Grotesk', sans-serif; animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1); padding-bottom: 20px;">
+            
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🔥</div>
+                <h2 style="font-family: 'Fredoka'; color: var(--primary-green); letter-spacing: 1px; font-size: 1.6rem; margin-bottom: 5px;">HALL OF HEROES</h2>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">Mereka yang ada di sini adalah alasan kenapa <b>NusantaraEdu</b> harus terus berkembang!</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%); padding: 30px 20px; border-radius: 25px; color: white; border: 2px solid #fbbf24; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(45, 106, 79, 0.3); margin-bottom: 25px;">
+                <div style="position: absolute; top: -10px; right: -10px; font-size: 5rem; opacity: 0.1;">🏆</div>
+                
+                <div style="position: relative; z-index: 2; text-align: center;">
+                    <span style="background: #fbbf24; color: #1b4332; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;">THE LEGENDARY FIRST</span>
+                    
+                    <h2 style="margin: 15px 0 10px; font-size: 1.6rem; font-family: 'Fredoka';">Aufa Asyafatul Qulub</h2>
+                    
+                    <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.9; font-weight: 300;">
+                        "Gelar <b>Pioneer Award</b> ini buat Aufa! Makasih banget sudah jadi orang pertama yang ngetes dan percaya sama NusantaraEdu di hari pertama rilis. Kehadiranmu bikin semangat dev makin membara!"
+                    </p>
+                    
+                    <div style="margin-top: 20px; font-size: 0.6rem; color: #fbbf24; font-weight: bold; letter-spacing: 2px;">SINCE: 9 FEBRUARI 2026</div>
+                </div>
+            </div>
+
+            <div style="background: #fff; padding: 25px; border-radius: 25px; border: 2px solid #e2e8f0; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🚀</div>
+                    <span style="font-size: 0.7rem; color: var(--orange-accent); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Most Brilliant Patriot</span>
+                    <h3 style="margin: 8px 0; font-size: 1.4rem; font-family: 'Fredoka'; color: var(--primary-green);">Fadiah Khairina</h3>
+                    <p style="font-size: 0.85rem; color: #4a5568; line-height: 1.6;">
+                        "Dikasih <b>Top Scorer Award</b> karena gila banget, langsung tembus <b>85 Poin</b> di kuis pertama! Kamu membuktikan kalau anak muda Indonesia itu emang pinter-pinter dan cinta budaya!"
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: 35px; text-align: center; padding: 20px; background: rgba(243, 114, 44, 0.05); border-radius: 20px; border: 1px dashed var(--orange-accent);">
+                <p style="font-size: 0.8rem; color: var(--text-dark); font-weight: 600;">
+                    "Kalian adalah inspirasi kami. NusantaraEdu akan terus tumbuh lebih keren lagi berkat kalian!"
+                </p>
+                <p style="font-size: 0.6rem; color: #888; margin-top: 10px;">With Love, Ky Dev ❤️</p>
+            </div>
+        </div>`;
+
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+// --- FUNGSI 2: LEADERBOARD (Dinamis & Kompetitif) ---
 async function showLeaderboard() {
     toggleMenu();
-    document.getElementById('modalTitle').innerText = "🏆 Peringkat Patriot Budaya";
-    document.getElementById('modalBody').innerHTML = "<p style='text-align:center; padding:20px;'>🌿 Memuat peringkat...</p>";
+    document.getElementById('modalTitle').innerText = "🏆 KLASEMEN PATRIOT";
+    document.getElementById('modalBody').innerHTML = "<div style='padding:40px;'><div class='spinner'></div><p>Sinkronisasi Data...</p></div>";
     document.getElementById('modalOverlay').classList.add('active');
 
     try {
-        // MENGGUNAKAN LINK RAW KAMU
         const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/refs/heads/main/leaderboard.json';
-
-        // Ditambah timestamp (?t=) supaya data selalu fresh tidak nyangkut di cache HP
         const response = await fetch(url + '?t=' + new Date().getTime());
+        const data = await response.json();
+        data.sort((a, b) => b.skor - a.skor);
 
-        if (!response.ok) throw new Error('Gagal ambil data');
-
-        const daftarPeringkat = await response.json();
-
-        // Urutkan otomatis skor tertinggi ke terendah
-        daftarPeringkat.sort((a, b) => b.skor - a.skor);
+        // Statistik Besar
+        const totalSkor = data.reduce((acc, curr) => acc + curr.skor, 0);
 
         let html = `
-            <div style="text-align:left;">
-                <p style="font-size:0.8rem; margin-bottom:15px; text-align:center; opacity:0.7;">Update Real-time via GitHub Cloud</p>
-                <table style="width:100%; border-collapse: collapse;">
-                    <tr style="background:var(--primary-green); color:white;">
-                        <th style="padding:10px; border-radius:10px 0 0 10px;">#</th>
-                        <th style="padding:10px; text-align:left;">Nama</th>
-                        <th style="padding:10px; border-radius:0 10px 10px 0;">Skor</th>
-                    </tr>
-        `;
+            <div style="font-family: 'Space Grotesk', sans-serif;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;">
+                    <div style="background: #f0fdf4; padding: 15px; border-radius: 18px; border: 1px solid #dcfce7;">
+                        <small style="font-size: 0.6rem; color: #166534; font-weight: bold;">TOTAL PATRIOT</small>
+                        <div style="font-size: 1.4rem; font-weight: 900; color: #1b4332;">${data.length}</div>
+                    </div>
+                    <div style="background: #fff7ed; padding: 15px; border-radius: 18px; border: 1px solid #ffedd5;">
+                        <small style="font-size: 0.6rem; color: #9a3412; font-weight: bold;">SKOR KOLEKTIF</small>
+                        <div style="font-size: 1.4rem; font-weight: 900; color: #c2410c;">${totalSkor}</div>
+                    </div>
+                </div>
 
-        daftarPeringkat.forEach((p, i) => {
-            let medali = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
-            html += `
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:12px; text-align:center; font-weight:bold;">${medali}</td>
-                    <td style="padding:12px;">${p.nama}</td>
-                    <td style="padding:12px; text-align:center; font-weight:bold; color:var(--orange-accent);">${p.skor}</td>
-                </tr>
-            `;
-        });
-
-        html += `</table>
-            <p style="font-size:0.7rem; margin-top:15px; color:gray; font-style:italic; text-align:center;">*Ingin namamu ada di sini? Selesaikan kuis dan kirim laporan nilai!</p>
-        </div>`;
-
+                <div style="background: white; border-radius: 20px; overflow: hidden; border: 1px solid #eee;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        ${data.map((p, i) => {
+                            let bg = i < 3 ? 'rgba(251, 191, 36, 0.1)' : 'transparent';
+                            let emoji = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i+1;
+                            return `
+                                <tr style="background: ${bg}; border-bottom: 1px solid #f0f0f0;">
+                                    <td style="padding: 15px; font-weight: 900; width: 50px; text-align: center;">${emoji}</td>
+                                    <td style="padding: 15px; text-align: left; font-weight: 600;">${p.nama}</td>
+                                    <td style="padding: 15px; text-align: right; font-weight: 900; color: #1b4332;">${p.skor} <small style="font-size:0.6rem; opacity:0.5;">PTS</small></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+                </div>
+            </div>`;
         document.getElementById('modalBody').innerHTML = html;
-
-    } catch (error) {
-        document.getElementById('modalBody').innerHTML = `
-            <div style="text-align:center; padding:20px;">
-                <p style="color:red; font-weight:bold;">Gagal memuat peringkat.</p>
-                <p style="font-size:0.7rem; color:gray;">Pastikan repositori GitHub sudah Public dan internet aktif.</p>
-            </div>
-        `;
+    } catch (e) {
+        document.getElementById('modalBody').innerHTML = "Gagal memuat klasemen.";
     }
 }
 
