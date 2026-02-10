@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' * 'unsafe-inline' 'unsafe-eval' data: blob: https:;">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 
     <title>NusantaraEdu Supreme - Ky Dev</title>
@@ -11,6 +13,113 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
 
     <style>
+    /* --- RESPONSIVE OPTIMIZATION --- */
+
+/* --- MASTER FIX: KHUSUS LAPTOP & DESKTOP (Min 1025px) --- */
+/* --- FIX MENU KATEGORI DI TENGAH --- */
+
+/* 1. Untuk Mobile (Tetap bisa geser) */
+.tag-container { 
+    display: flex; 
+    overflow-x: auto; 
+    gap: 10px; 
+    padding: 20px 5%; 
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+.tag-container::-webkit-scrollbar { display: none; }
+
+/* 2. KHUSUS DESKTOP (Pindah ke Tengah) */
+@media (min-width: 1025px) {
+    .tag-container {
+        justify-content: center !important; /* KUNCI UTAMA KE TENGAH */
+        overflow-x: visible !important;   /* Matikan scroll samping */
+        flex-wrap: wrap !important;      /* Biar kalau menu banyak, dia turun ke bawah */
+        max-width: 1000px;               /* Batasi lebar biar gak terlalu melar */
+        margin: 0 auto !important;       /* Pastikan wadahnya di tengah */
+        padding: 20px 0 !important;
+    }
+
+    .tag {
+        white-space: nowrap;
+        padding: 12px 30px !important;
+        font-size: 1rem !important;
+        /* Tambahan agar terlihat lebih seperti tombol profesional */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+}
+
+
+@media (min-width: 1025px) {
+    /* 1. Paksa Container Memenuhi Layar */
+    .container {
+        max-width: 1400px !important; 
+        width: 90% !important;
+        margin: 0 auto !important;
+        padding: 40px 0 !important;
+    }
+
+    /* 2. Besarkan Header & Judul */
+    .search-area h1 {
+        font-size: 4rem !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* 3. Search Bar Panjang & Mewah */
+    .search-wrapper {
+        max-width: 800px !important;
+        height: 65px !important;
+        margin: 0 auto 50px !important;
+    }
+
+    /* 4. PERBAIKAN MENU (Nusantara Menu) */
+    /* Membuat menu kategori jadi tombol pill yang besar dan jelas */
+    .categories, .nav-menu { 
+        display: flex !important;
+        justify-content: center !important;
+        gap: 20px !important;
+        margin-bottom: 40px !important;
+    }
+
+    .category-btn, .nav-item {
+        padding: 12px 30px !important;
+        font-size: 1.1rem !important;
+        border-radius: 50px !important;
+        min-width: 150px;
+        text-align: center;
+    }
+
+    /* 5. GRID SYSTEM (Kunci agar tidak kosong di kanan) */
+    .grid {
+        display: grid !important;
+        /* Ini akan otomatis menambah kolom (4-5 kolom) jika layar sangat lebar */
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; 
+        gap: 30px !important;
+        width: 100% !important;
+    }
+
+    /* 6. Card & Image Scaling */
+    .card {
+        height: 100% !important;
+        border-radius: 25px !important;
+    }
+
+    .card img {
+        height: 250px !important; /* Gambar lebih tinggi di laptop */
+        object-fit: cover !important;
+    }
+
+    /* 7. Banner "Ayo Lestarikan" */
+    .hero-banner {
+        padding: 60px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        text-align: left !important;
+    }
+}
+
 /* Tambahkan di dalam <style> */
 .modal-content {
     -webkit-touch-callout: none; /* Matikan menu copy-paste di iOS */
@@ -354,12 +463,8 @@ body.dark-mode .rec-card { background: var(--dark-card); border-color: #333; }
 <div class="menu-item" onclick="showBetaDownload()" style="background: rgba(45, 106, 79, 0.1); border: 1px solid var(--primary-green); position: relative;">
     📱 NusantaraEdu App <span class="badge-new" style="background: #007bff;">BETA</span>
 </div>
+
 <div class="menu-item" onclick="showCredits()">🙏 Kredit & Apresiasi</div>
-
-
-
-
-
         <button onclick="toggleMenu()" style="background:var(--orange-accent); color:white; border:none; padding:14px; width:100%; border-radius:18px; margin-top:30px; font-weight:bold; cursor:pointer;">Tutup</button>
     </div>
 
@@ -1413,56 +1518,295 @@ function showHonorRoll() {
 }
 
 // --- FUNGSI 2: LEADERBOARD (Dinamis & Kompetitif) ---
+// --- FUNGSI CLASSEMETER: PROFESSIONAL LEADERBOARD SYSTEM ---
+// 1. FUNGSI EKSPOR PDF (PASTIKAN LIBRARY jspdf & jspdf-autotable SUDAH TERPASANG)
+/**
+ * 1. FUNGSI EKSPOR PDF 
+ * Menggunakan feedback visual pada tombol dan library jsPDF
+ */
+async function exportLeaderboard() {
+    const btn = document.querySelector('.export-pill');
+    const originalText = btn.innerHTML;
+    
+    // Feedback visual saat proses
+    btn.innerHTML = "Processing...";
+    btn.style.opacity = "0.7";
+    btn.disabled = true;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/refs/heads/main/leaderboard.json';
+    
+    try {
+        const response = await fetch(url + '?t=' + new Date().getTime());
+        let data = await response.json();
+        data.sort((a, b) => b.skor - a.skor);
+
+        // Styling PDF
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(45, 106, 79); 
+        doc.text("LAPORAN ANALISIS KOMPETENSI", 14, 22);
+        
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100);
+        doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 30);
+        doc.text("Lembaga: Nusantara Edu System", 14, 35);
+
+        doc.autoTable({
+            startY: 40,
+            head: [['POS', 'IDENTITAS PESERTA', 'AKUMULASI POIN']],
+            body: data.map((item, i) => [i + 1, item.nama.toUpperCase(), `${item.skor} PTS`]),
+            theme: 'striped',
+            headStyles: { fillColor: [45, 106, 79], halign: 'center' },
+            columnStyles: { 0: { halign: 'center' }, 2: { halign: 'right' } },
+            styles: { font: "helvetica", fontSize: 9 }
+        });
+
+        doc.save(`Laporan_NusantaraEdu_${new Date().getTime()}.pdf`);
+    } catch (e) {
+        alert("Gagal mengekspor data. Periksa koneksi internet.");
+    } finally {
+        // Kembalikan state tombol
+        btn.innerHTML = originalText;
+        btn.style.opacity = "1";
+        btn.disabled = false;
+    }
+}
+
+/**
+ * 2. FUNGSI UTAMA TAMPILAN LEADERBOARD
+ * Desain smooth dengan visibilitas tinggi pada Nama & Nomor
+ */
+/**
+ * 1. FUNGSI EKSPOR PDF 
+ * Fitur cetak laporan dengan visual feedback pada tombol
+ */
+async function exportLeaderboard() {
+    const btn = document.querySelector('.export-pill');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = "<span>Processing...</span>";
+    btn.style.opacity = "0.7";
+    btn.disabled = true;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/refs/heads/main/leaderboard.json';
+    
+    try {
+        const response = await fetch(url + '?t=' + new Date().getTime());
+        let data = await response.json();
+        data.sort((a, b) => b.skor - a.skor);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(45, 106, 79); 
+        doc.text("LAPORAN ANALISIS KOMPETENSI", 14, 22);
+        
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100);
+        doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 30);
+
+        doc.autoTable({
+            startY: 40,
+            head: [['POS', 'IDENTITAS PESERTA', 'AKUMULASI POIN']],
+            body: data.map((item, i) => [i + 1, item.nama.toUpperCase(), `${item.skor} PTS`]),
+            theme: 'striped',
+            headStyles: { fillColor: [45, 106, 79], halign: 'center' },
+            columnStyles: { 0: { halign: 'center' }, 2: { halign: 'right' } },
+            styles: { font: "helvetica", fontSize: 9 }
+        });
+
+        doc.save(`Laporan_NusantaraEdu_${new Date().getTime()}.pdf`);
+    } catch (e) {
+        alert("Gagal ekspor PDF.");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.style.opacity = "1";
+        btn.disabled = false;
+    }
+}
+
+/**
+ * 2. FUNGSI UTAMA TAMPILAN LEADERBOARD
+ * Desain kombinasi Glassmorphism + High Visibility (Nama & Nomor)
+ */
 async function showLeaderboard() {
-    toggleMenu();
-    document.getElementById('modalTitle').innerText = "🏆 KLASEMEN PATRIOT";
-    document.getElementById('modalBody').innerHTML = "<div style='padding:40px;'><div class='spinner'></div><p>Sinkronisasi Data...</p></div>";
+    if (typeof toggleMenu === 'function') toggleMenu();
+    
+    const modalBody = document.getElementById('modalBody');
+    if (document.getElementById('modalTitle')) document.getElementById('modalTitle').innerText = ""; 
+    
+    modalBody.innerHTML = `
+        <div style="padding: 80px 0; text-align: center;">
+            <div class="smooth-loader"></div>
+        </div>
+        <style>
+            .smooth-loader { 
+                width: 35px; height: 35px; border: 3px solid rgba(45,106,79,0.1); 
+                border-top: 3px solid #2d6a4f; border-radius: 50%; 
+                animation: smoothSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; margin: 0 auto; 
+            }
+            @keyframes smoothSpin { to { transform: rotate(360deg); } }
+        </style>
+    `;
     document.getElementById('modalOverlay').classList.add('active');
 
     try {
         const url = 'https://raw.githubusercontent.com/kyy-dev/Project-PKN/refs/heads/main/leaderboard.json';
         const response = await fetch(url + '?t=' + new Date().getTime());
-        const data = await response.json();
-        data.sort((a, b) => b.skor - a.skor);
+        let masterData = await response.json();
+        const maxScore = Math.max(...masterData.map(d => d.skor));
 
-        // Statistik Besar
-        const totalSkor = data.reduce((acc, curr) => acc + curr.skor, 0);
+        const renderTable = (dataList) => {
+            return dataList.map((item, index) => {
+                const percentage = (item.skor / maxScore) * 100;
+                
+                // Badge khusus untuk peringkat 1, 2, 3
+                let rankStyle = index === 0 ? 'background:#fbbf24;color:white;' : 
+                                index === 1 ? 'background:#94a3b8;color:white;' : 
+                                index === 2 ? 'background:#d97706;color:white;' : 
+                                'background:rgba(45,106,79,0.1);color:#2d6a4f;';
 
-        let html = `
-            <div style="font-family: 'Space Grotesk', sans-serif;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;">
-                    <div style="background: #f0fdf4; padding: 15px; border-radius: 18px; border: 1px solid #dcfce7;">
-                        <small style="font-size: 0.6rem; color: #166534; font-weight: bold;">TOTAL PATRIOT</small>
-                        <div style="font-size: 1.4rem; font-weight: 900; color: #1b4332;">${data.length}</div>
+                return `
+                <div class="smooth-row" style="animation-delay: ${index * 0.05}s">
+                    <div class="c-pos">
+                        <span class="rank-badge" style="${rankStyle}">${index + 1}</span>
                     </div>
-                    <div style="background: #fff7ed; padding: 15px; border-radius: 18px; border: 1px solid #ffedd5;">
-                        <small style="font-size: 0.6rem; color: #9a3412; font-weight: bold;">SKOR KOLEKTIF</small>
-                        <div style="font-size: 1.4rem; font-weight: 900; color: #c2410c;">${totalSkor}</div>
+                    <div class="c-info">
+                        <div class="u-name">${item.nama.toUpperCase()}</div>
+                        <div class="u-bar-bg"><div class="u-bar-fill" style="width: ${percentage}%"></div></div>
+                    </div>
+                    <div class="c-pts">
+                        <span class="p-num">${item.skor}</span>
+                        <span class="p-sub">PTS</span>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        modalBody.innerHTML = `
+            <div class="edu-container">
+                <div class="glass-header">
+                    <div class="h-txt">
+                        <h3>Analisis Kompetensi</h3>
+                        <p>Update: ${new Date().toLocaleDateString('id-ID')}</p>
+                    </div>
+                    <button class="export-pill" onclick="exportLeaderboard()">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span>Cetak</span>
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-glass">
+                        <small>TOTAL PESERTA</small>
+                        <strong>${masterData.length}</strong>
+                    </div>
+                    <div class="stat-glass">
+                        <small>SKOR TERTINGGI</small>
+                        <strong style="color:#2d6a4f">${maxScore}</strong>
                     </div>
                 </div>
 
-                <div style="background: white; border-radius: 20px; overflow: hidden; border: 1px solid #eee;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-                        ${data.map((p, i) => {
-                            let bg = i < 3 ? 'rgba(251, 191, 36, 0.1)' : 'transparent';
-                            let emoji = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i+1;
-                            return `
-                                <tr style="background: ${bg}; border-bottom: 1px solid #f0f0f0;">
-                                    <td style="padding: 15px; font-weight: 900; width: 50px; text-align: center;">${emoji}</td>
-                                    <td style="padding: 15px; text-align: left; font-weight: 600;">${p.nama}</td>
-                                    <td style="padding: 15px; text-align: right; font-weight: 900; color: #1b4332;">${p.skor} <small style="font-size:0.6rem; opacity:0.5;">PTS</small></td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </table>
+                <div class="search-box-glass">
+                    <input type="text" id="dbSearch" placeholder="Cari nama peserta..." onkeyup="handleSearch()">
+                    <div class="filter-tabs">
+                        <button class="t-btn active" id="tabAll" onclick="handleFilter('all')">Semua</button>
+                        <button class="t-btn" id="tabTop" onclick="handleFilter('top')">Top 10</button>
+                    </div>
                 </div>
-            </div>`;
-        document.getElementById('modalBody').innerHTML = html;
+
+                <div class="scroll-list">
+                    <div id="leaderboardList">${renderTable([...masterData].sort((a,b) => b.skor - a.skor))}</div>
+                </div>
+                
+                <p class="footer-tag">Nusantara Edu System • Data Terverifikasi</p>
+            </div>
+            
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+                .edu-container { font-family: 'Plus Jakarta Sans', sans-serif; padding: 5px; color: #1e293b; }
+                
+                .glass-header { 
+                    background: linear-gradient(135deg, #1b4332, #2d6a4f); padding: 22px; border-radius: 22px; 
+                    display: flex; justify-content: space-between; align-items: center; 
+                    color: white; margin-bottom: 15px; box-shadow: 0 12px 30px rgba(27,67,50,0.2);
+                }
+                .h-txt h3 { margin: 0; font-size: 1.2rem; font-weight: 800; }
+                .h-txt p { margin: 2px 0 0 0; font-size: 0.7rem; opacity: 0.8; }
+
+                .export-pill { 
+                    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); 
+                    color: white; padding: 10px 16px; border-radius: 12px; font-size: 0.7rem; 
+                    font-weight: 800; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px);
+                }
+
+                .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+                .stat-glass { background: white; padding: 18px; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+                .stat-glass small { display: block; font-size: 0.6rem; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 4px; }
+                .stat-glass strong { font-size: 1.5rem; font-weight: 800; }
+
+                .search-box-glass { background: #f8fafc; padding: 12px; border-radius: 22px; margin-bottom: 15px; border: 1px solid #f1f5f9; }
+                #dbSearch { 
+                    width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; 
+                    font-size: 0.85rem; outline: none; box-sizing: border-box; font-weight: 700;
+                }
+                .filter-tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-top: 10px; }
+                .t-btn { flex: 1; border: none; padding: 10px; font-size: 0.75rem; font-weight: 800; border-radius: 10px; cursor: pointer; color: #64748b; background: transparent; transition: 0.3s; }
+                .t-btn.active { background: white; color: #2d6a4f; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+                .scroll-list { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+                .smooth-row { 
+                    display: grid; grid-template-columns: 55px 1fr 75px; align-items: center; 
+                    padding: 18px 12px; border-bottom: 1px solid #f1f5f9; 
+                    opacity: 0; transform: translateY(15px);
+                    animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+                }
+                @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+                .c-pos { display: flex; justify-content: center; }
+                .rank-badge { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: 800; font-size: 0.95rem; }
+
+                .u-name { font-size: 1rem; font-weight: 800; color: #1e293b; line-height: 1.2; margin-bottom: 6px; }
+                .u-bar-bg { width: 90%; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
+                .u-bar-fill { height: 100%; background: linear-gradient(90deg, #2d6a4f, #52b788); border-radius: 10px; transition: width 1s ease-in-out; }
+                
+                .c-pts { text-align: right; }
+                .p-num { display: block; font-weight: 800; color: #2d6a4f; font-size: 1.15rem; }
+                .p-sub { font-size: 0.65rem; color: #94a3b8; }
+
+                .footer-tag { text-align: center; font-size: 0.65rem; color: #cbd5e1; margin-top: 20px; font-weight: 700; }
+                .scroll-list::-webkit-scrollbar { width: 4px; }
+                .scroll-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+            </style>
+        `;
+
+        window.handleSearch = () => {
+            const q = document.getElementById('dbSearch').value.toLowerCase();
+            const filtered = masterData.filter(p => p.nama.toLowerCase().includes(q));
+            document.getElementById('leaderboardList').innerHTML = renderTable(filtered);
+        };
+
+        window.handleFilter = (mode) => {
+            document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+            let data = [...masterData].sort((a,b) => b.skor - a.skor);
+            if(mode === 'top') {
+                data = data.slice(0, 10);
+                document.getElementById('tabTop').classList.add('active');
+            } else {
+                document.getElementById('tabAll').classList.add('active');
+            }
+            document.getElementById('leaderboardList').innerHTML = renderTable(data);
+        };
+
     } catch (e) {
-        document.getElementById('modalBody').innerHTML = "Gagal memuat klasemen.";
+        modalBody.innerHTML = `<div style="padding:40px; text-align:center;">Gagal memuat data.</div>`;
     }
 }
-
 
 function showBetaDownload() {
     toggleMenu(); // Tutup side menu dulu
