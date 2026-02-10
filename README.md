@@ -64,5 +64,3 @@ Website ini dibuat untuk mendukung pembelajaran **Pendidikan Kewarganegaraan (PK
 </p>
 
 ---
-
-## 📂 Struktur Proyek
